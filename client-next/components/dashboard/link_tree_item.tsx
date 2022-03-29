@@ -1,5 +1,4 @@
 import { Link } from "../../near/types";
-import Image from 'next/image'
 import { useNear } from "../../context/near";
 
 interface Props {
@@ -28,13 +27,11 @@ const LinkTreeItem = ({ link }: Props) => {
       >
         <div className='flex gap-x-4 items-center p-4 rounded border border-accent w-full'>
           <div className="relative w-10 aspect-square rounded-full overflow-hidden">
-            <Image
+            <img
               src={image_uri ? `https://ipfs.io/ipfs/${image_uri}` : "https://picsum.photos/200"}
               alt={title}
               className='object-cover object-center rounded-full'
               placeholder="blur"
-              blurDataURL={rgbDataURL(255, 40, 6)}
-              layout='fill'
             />
           </div>
           <div>

@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import ButtonLogin from '../../components/buttons'
 import Layout from '../../components/layout'
 import Hub from '../../components/dashboard/hub'
