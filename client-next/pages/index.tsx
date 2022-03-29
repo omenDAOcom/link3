@@ -1,13 +1,10 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import ButtonLogin from '../components/buttons'
 import { Logo } from '../components/icons/logo'
 import Layout from '../components/layout'
-import { useEffect, useState } from 'react'
 import { useNear } from '../context/near'
 import Link from 'next/link'
-import HubForm from '../components/dashboard/hub_form'
 
 
 

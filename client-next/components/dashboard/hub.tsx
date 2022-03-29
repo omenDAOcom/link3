@@ -1,7 +1,6 @@
 import {  Hub } from "../../near/types";
 import { useMemo, useState } from "react";
 import { useNear } from "../../context/near";
-import Image from 'next/image'
 // Components
 import LinkTree from "./link_tree";
 import Link from "next/link";
@@ -34,13 +33,11 @@ const Hub = (props: Props) => {
           </div>
           <div
             className="relative w-40 aspect-square object-cover object-center rounded-full" >
-            <Image
+            <img
               src={hub.image_uri ? `https://ipfs.io/ipfs/${hub.image_uri}` : "https://picsum.photos/200"}
               alt={hub.title}
               className='object-cover object-center rounded-full'
               placeholder="blur"
-              blurDataURL={rgbDataURL(255, 40, 6)}
-              layout='fill'
             />
           </div>
 

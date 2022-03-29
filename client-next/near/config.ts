@@ -29,7 +29,7 @@ interface Configs {
 }
 
 const getConfig = <Configs>() => {
-  switch (process.env.NODE_ENV as string) {
+  switch (process.env.NEXT_PUBLIC_APP_ENV as string) {
     case 'prod':
     case 'mainnet':
     case 'production':
