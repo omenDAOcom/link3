@@ -19,7 +19,3 @@ lto = true
 debug = false
 panic = "abort"
 overflow-checks = true
-
-# To compile for production 
-# env 'RUSTFLAGS=-C link-arg=-s' 
-# cargo build --target wasm32-unknown-unknown --release
