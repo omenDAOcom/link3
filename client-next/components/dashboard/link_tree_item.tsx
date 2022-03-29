@@ -23,7 +23,9 @@ const LinkTreeItem = ({ link }: Props) => {
       <div className="absolute top-1 right-2">
         <div onClick={cenas} className="clickable text-xs font-medium tracking-wide hover:text-primary">edit</div>
       </div>
-      <a href={uri} target="_blank">
+      <a href={uri} target="_blank"
+        rel="noreferrer"
+      >
         <div className='flex gap-x-4 items-center p-4 rounded border border-accent w-full'>
           <div className="relative w-10 aspect-square rounded-full overflow-hidden">
             <Image

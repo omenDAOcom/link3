@@ -13,8 +13,10 @@ const CreateLink3 = () => {
     Router.push('/dashboard')
   }
   useMemo(async () => {
-    await getHub(accountId);
-    return hub
+    if (accountId) {
+      await getHub(accountId);
+      return hub
+    }
   }, [accountId, isLoggedIn])
 
   return (
