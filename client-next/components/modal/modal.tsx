@@ -47,7 +47,7 @@ const Modal = ({
           className="fixed inset-0 z-10 flex items-center justify-center"
         >
           <div
-            className="absolute inset-0 bg-black/80 z-20"
+            className="absolute inset-0 bg-black/80 z-20 cursor-pointer"
             onClick={onRequestClose} />
           <div className="relative z-30 ">
             <IconClose className="absolute top-4 right-4 w-8
