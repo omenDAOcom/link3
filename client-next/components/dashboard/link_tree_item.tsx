@@ -1,13 +1,17 @@
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
+import ModalEditLink from "../modal/modal_edit_link";
+import { useState } from "react";
 
 interface Props {
+  onEditClick: (link: Link) => void;
   link: Link;
 }
 
-const LinkTreeItem = ({ link }: Props) => {
+const LinkTreeItem = ({ link, onEditClick }: Props) => {
   const { updateLink } = useNear();
   const { title, image_uri, uri, description } = link;
+
   const cenas = () => {
     updateLink({
       id: link.id,
@@ -17,11 +21,19 @@ const LinkTreeItem = ({ link }: Props) => {
       description: "Olha que coisa mai linda",
     });
   }
+
+  const openModal = () => {
+    onEditClick(link);
+  };
+
+
+
   return (
     <div className="w-full relative">
       <div className="absolute top-1 right-2">
         <div onClick={cenas} className="clickable text-xs font-medium tracking-wide hover:text-primary">edit</div>
       </div>
+      <button onClick={openModal}>Open Modal</button>
       <a href={uri} target="_blank"
         rel="noreferrer"
       >
@@ -40,6 +52,7 @@ const LinkTreeItem = ({ link }: Props) => {
           </div>
         </div>
       </a>
+
     </div>
   )
 }

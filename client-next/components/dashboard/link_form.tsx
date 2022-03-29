@@ -6,9 +6,13 @@ import { useNear } from "../../context/near"
 // Components
 import UploadImage from "../utils/upload_image";
 import LabelAndErrors from "../utils/label_error";
+import { useEffect } from "react";
 
+interface Props {
+  link?: Link
+}
 
-const LinkForm = () => {
+const LinkForm = ({ link }: Props) => {
   const { addLink, isLoggedIn, accountId } = useNear()
   const { register, formState: { errors }, handleSubmit } = useForm()
 
@@ -18,6 +22,14 @@ const LinkForm = () => {
   const [image_uri, setImageUri] = useState<string | null>(null)
   const [tempImg, setTempImg] = useState<File | null>(null)
 
+  useEffect(() => {
+    if (link) {
+      setTitle(link.title)
+      setDescription(link.description)
+      setUri(link.uri)
+      setImageUri(link.image_uri)
+    }
+  }, [link])
 
   const uploadToServer = async (image: File): Promise<string | null> => {
     try {
@@ -75,6 +87,7 @@ const LinkForm = () => {
           type="link"
           placeholder="https://www.google.com"
           {...register('uri', uriValidator)}
+          value={uri}
           onChange={(event) => setUri(event.target.value)}
         />
       </div>
@@ -87,6 +100,7 @@ const LinkForm = () => {
           type="text"
           placeholder="Google"
           {...register('title', titleValidator)}
+          value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
       </div>
@@ -99,6 +113,7 @@ const LinkForm = () => {
           type="text"
           placeholder="Search Engine"
           {...register('description', descriptionValidator)}
+          value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
       </div>
