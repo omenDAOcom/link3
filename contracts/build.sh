@@ -4,6 +4,7 @@ set -e
 IS_COMPILE=false
 IS_RESET_PROFILE=false
 IS_DEPLOY=false
+IS_COMPILE_DEPLOY=false
 
 for var in "$@"
 do
@@ -30,6 +31,9 @@ do
      echo "Issues: "
      ;;
      
+    -cd)
+      IS_COMPILE_DEPLOY=true
+      ;;
     -d|--deploy)
       IS_DEPLOY=true
       ;;
@@ -59,6 +63,22 @@ if $IS_RESET_PROFILE; then
 fi
 
 if $IS_DEPLOY; then
+    echo "Deploying contract... ⛓️"
+    near dev-deploy --wasmFile ./out/main.wasm
+    echo "---------------------------------------------------------"
+    echo "Contract deployed with success ✅" 
+
+    echo "---------------------------------------------------------"
+    echo "Load the new contract account id with:"
+    echo "> source ./neardev/dev-account.env"
+fi
+if $IS_COMPILE_DEPLOY; then
+echo "Compiling for release... 🤖"
+    RUSTFLAGS='-C link-arg=-s' cargo build --target wasm32-unknown-unknown --release
+    mkdir -p ./out
+    cp target/wasm32-unknown-unknown/release/*.wasm ./out/main.wasm
+    echo "---------------------------------------------------------"
+    echo "Compile success! ⭐ Artifact exported to: ./out/main.wasm"
     echo "Deploying contract... ⛓️"
     near dev-deploy --wasmFile ./out/main.wasm
     echo "---------------------------------------------------------"

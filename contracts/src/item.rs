@@ -4,7 +4,7 @@ use near_sdk::{env, log, PanicOnDefault};
 use serde::Serialize;
 
 // #[near_bindgen]
-#[derive(BorshSerialize, BorshDeserialize, Clone, PanicOnDefault, Serialize)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, PanicOnDefault, Serialize, Debug)]
 pub struct Item {
     id: u64,
     uri: String,

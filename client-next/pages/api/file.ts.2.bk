@@ -1,0 +1,38 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Files } from 'formidable';
+
+import middleware from '../../middleware/middleware';
+import nextConnect from 'next-connect';
+
+
+const handler = nextConnect();
+
+handler.use(middleware);
+
+type NextApiRequestWithFiles = NextApiRequest & {
+  files: Files;
+}
+
+handler.post(async (req:NextApiRequestWithFiles, res:NextApiResponse) => {
+  try {
+    const files = req.files
+    const body = req.body
+
+    console.log("files", files)
+    console.log("files", files)
+    console.log("body", body)
+
+    // do stuff with files and body
+    res.status(200).json({});
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
+export default handler;

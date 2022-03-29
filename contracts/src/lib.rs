@@ -48,7 +48,7 @@ impl MainHub {
 
         let link3 = Link3::new(title, description, image_uri, is_published);
         self.hub.insert(&env::signer_account_id(), &link3);
-        
+
         return link3;
     }
 
@@ -75,6 +75,32 @@ impl MainHub {
         // Save to hub state
         self.hub.insert(&env::signer_account_id(), &link3);
     }
+
+    pub fn update_link(
+        &mut self,
+        id: u64,
+        uri: String,
+        title: String,
+        description: String,
+        image_uri: Option<String>,
+        is_published: Option<bool>,
+    ) {
+        let mut link3: Link3 = Self::get(&self, env::signer_account_id())
+            .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+
+        // Update item
+        link3.update_link(
+            id,
+            uri,
+            title,
+            description,
+            image_uri,
+            is_published.unwrap_or(true),
+        );
+
+        // Save to hub state
+        self.hub.insert(&env::signer_account_id(), &link3);
+    }
 }
 
 /*********
@@ -84,7 +110,7 @@ impl MainHub {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::{testing_env, VMContext};
+    use near_sdk::{testing_env, VMContext, log};
     use near_sdk::{Balance, MockedBlockchain};
 
     fn get_context(input: Vec<u8>, is_view: bool, deposit: Option<Balance>) -> VMContext {
@@ -108,31 +134,30 @@ mod tests {
         }
     }
 
-
     fn get_alternative_context(
-      input: Vec<u8>,
-      is_view: bool,
-      deposit: Option<Balance>,
-  ) -> VMContext {
-      VMContext {
-          current_account_id: "contract.testnet".to_string(),
-          signer_account_id: "robert.testnet".to_string(),
-          signer_account_pk: vec![0, 1, 2],
-          predecessor_account_id: "robert.testnet".to_string(),
-          input,
-          block_index: 0,
-          block_timestamp: 0,
-          account_balance: 0,
-          account_locked_balance: 0,
-          storage_usage: 0,
-          attached_deposit: deposit.unwrap_or(0),
-          prepaid_gas: 10u64.pow(18),
-          random_seed: vec![0, 1, 2],
-          is_view,
-          output_data_receivers: vec![],
-          epoch_height: 19,
-      }
-  }
+        input: Vec<u8>,
+        is_view: bool,
+        deposit: Option<Balance>,
+    ) -> VMContext {
+        VMContext {
+            current_account_id: "contract.testnet".to_string(),
+            signer_account_id: "robert.testnet".to_string(),
+            signer_account_pk: vec![0, 1, 2],
+            predecessor_account_id: "robert.testnet".to_string(),
+            input,
+            block_index: 0,
+            block_timestamp: 0,
+            account_balance: 0,
+            account_locked_balance: 0,
+            storage_usage: 0,
+            attached_deposit: deposit.unwrap_or(0),
+            prepaid_gas: 10u64.pow(18),
+            random_seed: vec![0, 1, 2],
+            is_view,
+            output_data_receivers: vec![],
+            epoch_height: 19,
+        }
+    }
 
     // mark individual unit tests with #[test] for them to be registered and fired
     #[test]
@@ -147,7 +172,7 @@ mod tests {
         let link3 = main.get("alice.testnet".to_string());
         assert!(&link3.is_some());
     }
- #[test]
+    #[test]
     fn create_link3_multiple_adds_to_hub() {
         // Given
         let context = get_context(vec![], false, Some(1));
@@ -155,7 +180,7 @@ mod tests {
         // When
         let mut main = MainHub::default();
         main.create("Hello".to_string(), "World".to_string(), None, Some(true));
-        
+
         let context_alternative = get_alternative_context(vec![], false, Some(1));
         testing_env!(context_alternative);
         main.create("Hello2".to_string(), "World2".to_string(), None, Some(true));
@@ -185,5 +210,34 @@ mod tests {
         // Then
         let link3 = main.get("alice.testnet".to_string());
         assert!(link3.unwrap().list().len() > 0);
+    }
+    #[test]
+    fn update_link_saves_link_to_state() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+
+        let mut main = MainHub::default();
+        main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+        // When
+        main.add_link(
+            "uri".to_string(),
+            "title".to_string(),
+            "description".to_string(),
+            Some("image_uri".to_string()),
+            Some(true),
+        );
+        main.update_link(
+            1,
+            "uri".to_string(),
+            "title".to_string(),
+            "description".to_string(),
+            Some("image_uri".to_string()),
+            Some(true),
+        );
+        // Then
+        let link3 = main.get("alice.testnet".to_string());
+        log!("link3: {:?}", link3.unwrap().list().get(0).unwrap().uri);
+        // assert!(link3.unwrap().list().len() > 0);
     }
 }

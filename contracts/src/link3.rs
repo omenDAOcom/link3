@@ -107,13 +107,42 @@ impl Link3 {
         if env::signer_account_id() != self.owner_account_id {
             env::panic(b"Only the owner can create a link");
         }
-
-        let id = u64::try_from(self.links.len() + 1).unwrap();
+        let last = self.links.last();
+        let id = u64::try_from(if last.is_some() { last.unwrap().id() + 1 } else { 0 }).unwrap();
         let item = Item::new(id, uri, title, description, image_uri, is_published);
 
         self.links.push(item);
         // Return created item
         &self.links[self.links.len() - 1]
+    }
+
+    pub fn update_link(
+        &mut self,
+        id: u64,
+        uri: String,
+        title: String,
+        description: String,
+        image_uri: Option<String>,
+        is_published: bool,
+    ) -> &Item {
+        if env::signer_account_id() != self.owner_account_id {
+            env::panic(b"Only the owner can update a link");
+        }
+        let index = self
+            .links
+            .iter()
+            .position(|item| item.id() == id)
+            .unwrap_or_else(|| {
+                env::panic(b"Link does not exist");
+            });
+        log!("Updating link with index: {}", id);
+
+        let item = Item::new(id, uri, title, description, image_uri, is_published);
+
+        // Update item
+        self.links[index] = item;
+        // Return updated item
+        &self.links[index]
     }
 }
 
@@ -125,8 +154,8 @@ impl Link3 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::{MockedBlockchain, Balance};
     use near_sdk::{testing_env, VMContext};
+    use near_sdk::{Balance, MockedBlockchain};
 
     fn get_context(input: Vec<u8>, is_view: bool, deposit: Option<Balance>) -> VMContext {
         VMContext {
@@ -477,5 +506,98 @@ mod tests {
         contract.list_all();
         // Then
         // - Should panic
+    }
+
+    #[test]
+    #[should_panic(expected = "Only the owner can update a link")]
+    fn update_item_with_wrong_owner_panics() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+
+        // When
+        let alt_context = get_alternative_context(vec![], false, Some(1));
+        testing_env!(alt_context);
+        contract.update_link(
+            1,
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    #[should_panic(expected = "Link does not exist")]
+    fn update_item_with_wrong_id_panics() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+
+        // When
+        contract.update_link(
+            2,
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    fn update_item() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context.clone());
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+
+        // When
+        testing_env!(context);
+        let item = contract.update_link(
+            0,
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+        // Then
+        assert_eq!(
+            item.read().title,
+            "some_title".to_string(),
+            "Should've returned an item"
+        );
     }
 }
