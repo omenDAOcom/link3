@@ -1,7 +1,5 @@
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
-import ModalEditLink from "../modal/modal_edit_link";
-import { useState } from "react";
 
 interface Props {
   onEditClick: (link: Link) => void;
