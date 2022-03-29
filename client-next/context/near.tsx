@@ -54,8 +54,6 @@ export function NearProvider({ children }: Props) {
     const walletSelector = await import("near-wallet-selector")
     const NearWalletSelector = walletSelector.default
     const selector = new NearWalletSelector(nearConfig());
-    console.log("CONFIG contract", process.env.NEXT_PUBLIC_CONTRACT_ID)
-    console.log("CONFIG noide env", process.env.NEXT_PUBLIC_APP_ENV)
     await selector.init();
     setSelector(selector);
   };

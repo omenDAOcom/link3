@@ -29,8 +29,6 @@ interface Configs {
 }
 
 const getConfig = <Configs>() => {
-  console.log("CONFIG contract", process.env.NEXT_PUBLIC_CONTRACT_ID)
-  console.log("CONFIG noide env", process.env.NEXT_PUBLIC_APP_ENV)
   switch (process.env.NEXT_PUBLIC_APP_ENV as string) {
     case 'prod':
     case 'mainnet':
