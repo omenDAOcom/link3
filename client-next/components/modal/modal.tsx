@@ -29,9 +29,7 @@ const Modal = ({
   useEffect(() => {
     setIsShown(false)
     if (isOpen && !isShown) {
-      sleep(50).then(() => {
-        setIsShown(true);
-      });
+      sleep(50).then(() => setIsShown(true));
     }
   }, [isOpen]);
 
