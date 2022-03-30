@@ -2,7 +2,7 @@ import {  Hub } from "../../near/types";
 import { useMemo, useState } from "react";
 import { useNear } from "../../context/near";
 // Components
-import LinkTree from "./link3";
+import Link3 from "./link3";
 import Link from "next/link";
 interface Props {
   accountId: string;
@@ -44,7 +44,7 @@ const Hub = (props: Props) => {
           <div className="text-xl font-bold tracking-wider">
             {hub.title}
           </div>
-          <LinkTree links={hub.links} />
+          <Link3 links={hub.links} />
         </div>
       </>
     )

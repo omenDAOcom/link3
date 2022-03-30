@@ -1,5 +1,4 @@
 import { Link } from "../../near/types";
-import { useNear } from "../../context/near";
 
 interface Props {
   onEdit: (link: Link) => void;
