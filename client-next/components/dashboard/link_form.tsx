@@ -13,7 +13,7 @@ import { NearLogo } from "../icons/near";
 interface Props {
   cta: string;
   link?: Link
-  onSubmitResolve: () => void;
+  onSubmitResolve?: () => void;
 }
 
 const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
@@ -40,7 +40,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     setIsReady(true)
   }, [link])
 
-  const uploadToServer = async (image: File): Promise<string | null> => {
+  const uploadImage = async (image: File): Promise<string | null> => {
     try {
       const body = new FormData();
       body.append("file", image);
@@ -53,7 +53,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       const response = await axios.post('/api/file', body, config);
       return response.data
     } catch (error) {
-      console.error("uploadToServer", error)
+      console.error("uploadImage", error)
       return null
     }
   };
@@ -64,7 +64,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     try {
       setIsPending(true)
       if (tempImg) {
-        const cid = await uploadToServer(tempImg)
+        const cid = await uploadImage(tempImg)
         newLink.image_uri = cid
       } else if (imageUri) {
         newLink.image_uri = imageUri

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Modal from './modal';
 import { Link } from '../../near/types';
 import LinkForm from '../dashboard/link_form';
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
