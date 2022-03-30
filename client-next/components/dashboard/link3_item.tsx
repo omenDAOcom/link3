@@ -8,7 +8,7 @@ interface Props {
 const Link3Item = ({ link, onEdit }: Props) => {
   const { title, image_uri, uri, description } = link;
 
-    const handleEdit = () => {
+  const handleEdit = () => {
     onEdit(link);
   };
 
