@@ -36,31 +36,33 @@ const Modal = ({
   }, [isOpen]);
 
   return (
-    isOpen && (
-      <div
-        className={`
+    <>
+      {isOpen && (
+        <div
+          className={`
         ${isShown ? 'opacity-100' : 'opacity-0'}
         transition duration-[${DURATION}ms] ease-linear
         absolute inset-0`}
-      >
-        <div
-          className="fixed inset-0 z-10 flex items-center justify-center"
         >
           <div
-            className="absolute inset-0 bg-black/80 z-20 cursor-pointer"
-            onClick={onRequestClose} />
-          <div className="relative z-30 ">
-            <IconClose className="absolute top-4 right-4 w-8
+            className="fixed inset-0 z-10 flex items-center justify-center"
+          >
+            <div
+              className="absolute inset-0 bg-black/80 z-20 cursor-pointer"
+              onClick={onRequestClose} />
+            <div className="relative z-30 ">
+              <IconClose className="absolute top-4 right-4 w-8
           text-paragraph hover:text-primary
           clickable
           " onClick={onRequestClose} />
-            <div className={`${contentClass} bg-surface p-10 min-w-[50vw] flex flex-col items-center justify-center rounded space-y-10 `}>
-              {children}
+              <div className={`${contentClass} bg-surface p-10 min-w-[50vw] flex flex-col items-center justify-center rounded space-y-10 `}>
+                {children}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )}
+    </>
   );
 };
 
