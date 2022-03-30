@@ -27,7 +27,7 @@ const Link3 = ({ links }: Props) => {
         {links.map((link: Link) => <Link3Item key={link.id} link={link} onEdit={openModal} />)}
       </div>
       {
-        isOpen &&
+        (isOpen && link) &&
         <ModalEditLink isOpen={isOpen} onClose={closeModal} link={link} />
       }
     </>

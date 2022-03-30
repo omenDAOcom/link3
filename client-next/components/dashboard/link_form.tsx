@@ -26,14 +26,16 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
   const [imageUri, setImageCid] = useState<string>("")
-  const [tempImg, setTempImg] = useState<File>(null)
+  const [tempImg, setTempImg] = useState<File | null>(null)
 
   useEffect(() => {
     if (link) {
       setTitle(link.title)
       setDescription(link.description)
       setUri(link.uri)
-      setImageCid(link.image_uri)
+      if (link.image_uri) {
+        setImageCid(link.image_uri)
+      }
       setIsReady(true)
     }
     setIsReady(true)
@@ -77,7 +79,9 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
         addToast("Link created", { appearance: 'success' });
       }
       setIsPending(false)
-      onSubmitResolve()
+      if (onSubmitResolve) {
+        onSubmitResolve()
+      }
     } catch (error) {
       setIsPending(false)
       console.error("onSubmit", error)
@@ -98,60 +102,62 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   }
 
   return (
-    isReady && (
-      <form
-        onSubmit={handleSubmit(onSubmit as any)}
-        className={`flex flex-col space-y-4 px-8 py-4 rounded max-w-2xl w-full bg-surface`}
-      >
-        <div className="flex flex-col space-y-1">
-          <LabelAndErrors title="Uri" error={errors.uri} />
-          <input
-            className='input input-text'
-            id="uri"
-            type="link"
-            placeholder="https://www.google.com"
-            {...register('uri', { value: uri, onChange: (event) => setUri(event.target.value), ...uriValidator })}
-          />
-        </div>
+    <>
+      {isReady && (
+        <form
+          onSubmit={handleSubmit(onSubmit as any)}
+          className={`flex flex-col space-y-4 px-8 py-4 rounded max-w-2xl w-full bg-surface`}
+        >
+          <div className="flex flex-col space-y-1">
+            <LabelAndErrors title="Uri" error={errors.uri} />
+            <input
+              className='input input-text'
+              id="uri"
+              type="link"
+              placeholder="https://www.google.com"
+              {...register('uri', { value: uri, onChange: (event) => setUri(event.target.value), ...uriValidator })}
+            />
+          </div>
 
-        <div className="flex flex-col space-y-1">
-          <LabelAndErrors title="Title" error={errors.title} />
-          <input
-            className='input input-text'
-            id="title"
-            type="text"
-            placeholder="Google"
-            {...register('title', { value: title, onChange: (event) => setTitle(event.target.value), ...titleValidator })}
-          />
-        </div>
+          <div className="flex flex-col space-y-1">
+            <LabelAndErrors title="Title" error={errors.title} />
+            <input
+              className='input input-text'
+              id="title"
+              type="text"
+              placeholder="Google"
+              {...register('title', { value: title, onChange: (event) => setTitle(event.target.value), ...titleValidator })}
+            />
+          </div>
 
-        <div className="flex flex-col space-y-1">
-          <LabelAndErrors title="Description" error={errors.description} />
-          <input
-            className='input input-text'
-            id="description"
-            type="text"
-            placeholder="Search Engine"
-            {...register('description', { value: description, onChange: (event) => setDescription(event.target.value), ...descriptionValidator })}
-          />
-        </div>
+          <div className="flex flex-col space-y-1">
+            <LabelAndErrors title="Description" error={errors.description} />
+            <input
+              className='input input-text'
+              id="description"
+              type="text"
+              placeholder="Search Engine"
+              {...register('description', { value: description, onChange: (event) => setDescription(event.target.value), ...descriptionValidator })}
+            />
+          </div>
 
-        <div className="flex flex-col">
-          <label className="label">Image </label>
-          <UploadImage initialImage={imageUri ? `https://ipfs.io/ipfs/${imageUri}` : null} setImage={setTempImg} />
-        </div>
+          <div className="flex flex-col">
+            <label className="label">Image </label>
+            <UploadImage initialImage={imageUri ? `https://ipfs.io/ipfs/${imageUri}` : null} setImage={setTempImg} />
+          </div>
 
-        <button type="submit"
-          className={`
+          <button type="submit"
+            className={`
           bg-primary text-on-primary px-4 py-2 rounded transition-smooth
           flex space-x-4 items-center justify-center
           ${isPending ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}
         `}>
-          <p>{cta}</p>
-          <NearLogo className={`w-6 text-on-primary ${isPending ? "animate-spin" : ""}`} />
-        </button>
-      </form>
-    )
+            <p>{cta}</p>
+            <NearLogo className={`w-6 text-on-primary ${isPending ? "animate-spin" : ""}`} />
+          </button>
+        </form>
+      )}
+    </>
   )
 }
 

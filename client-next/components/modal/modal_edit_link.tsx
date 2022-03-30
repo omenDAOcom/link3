@@ -4,9 +4,9 @@ import { Link } from '../../near/types';
 import LinkForm from '../dashboard/link_form';
 
 interface Props {
+  link: Link;
   isOpen: boolean;
   onClose: () => void;
-  link: Link;
 }
 
 const ModalEditLink = ({

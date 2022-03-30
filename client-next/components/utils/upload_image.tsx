@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useRef, useState } from "react"
 
 interface Props {
-  initialImage?: string,
+  initialImage: string | null;
   setImage: (image: File) => void
 }
 const UploadFile = ({ initialImage, setImage }: Props) => {
