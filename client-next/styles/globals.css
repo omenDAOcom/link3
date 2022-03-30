@@ -112,6 +112,13 @@ body{
   @apply font-medium;
   @apply tracking-wide;
 }
+.label-error{
+  @apply text-danger;
+  @apply text-sm;
+  @apply uppercase;
+  @apply font-medium;
+  @apply tracking-wide;
+}
 
 .input{
   @apply bg-transparent;

@@ -11,20 +11,28 @@ const Link3Item = ({ link, onEdit }: Props) => {
   const handleEdit = () => {
     onEdit(link);
   };
+
   return (
     <div className="w-full relative">
       <div className="absolute top-1 right-2">
-        <div onClick={handleEdit} className="clickable text-xs font-medium tracking-wide hover:text-primary">edit</div>
+        <div
+          onClick={handleEdit}
+          className="clickable text-xs font-medium tracking-wide hover:text-primary"
+        >
+          edit
+        </div>
       </div>
-      <a href={uri} target="_blank"
-        rel="noreferrer"
-      >
-        <div className='flex gap-x-4 items-center p-4 rounded border border-accent w-full'>
+      <a href={uri} target="_blank" rel="noreferrer">
+        <div className="flex gap-x-4 items-center p-4 rounded border border-accent w-full">
           <div className="relative w-10 aspect-square rounded-full overflow-hidden">
             <img
-              src={image_uri ? `https://ipfs.io/ipfs/${image_uri}` : "https://picsum.photos/200"}
+              src={
+                image_uri
+                  ? `https://ipfs.io/ipfs/${image_uri}`
+                  : "https://picsum.photos/200"
+              }
               alt={title}
-              className='object-cover object-center rounded-full'
+              className="object-cover object-center rounded-full"
               placeholder="blur"
             />
           </div>
@@ -35,7 +43,7 @@ const Link3Item = ({ link, onEdit }: Props) => {
         </div>
       </a>
     </div>
-  )
-}
+  );
+};
 
 export default Link3Item;

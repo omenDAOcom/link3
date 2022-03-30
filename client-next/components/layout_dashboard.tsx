@@ -1,25 +1,29 @@
-import Head from 'next/head';
-import Router from 'next/router';
-import { useEffect } from 'react';
-import { useNear } from '../context/near';
-import { NearLogo } from './icons/near';
-import { useToasts } from 'react-toast-notifications';
+import Head from "next/head";
+import Router from "next/router";
+import { useEffect } from "react";
+import { NearLogo } from "./icons/near";
+import { useNear } from "../context/near";
+import { useToasts } from "react-toast-notifications";
 
-export const siteTitle = 'Link3'
+interface Props {
+  children: React.ReactNode;
+}
 
-export default function LayoutDashboard({ children }: { children: React.ReactNode }) {
-  const { isReady, accountId, isLoggedIn } = useNear();
+const LayoutDashboard = ({ children }: Props) => {
+  const siteTitle = "Link3";
+
   const { addToast } = useToasts();
+  const { isReady, accountId, isLoggedIn } = useNear();
 
   useEffect(() => {
     if (isReady) {
       if (!accountId) {
-        addToast("Please connect your wallet", { appearance: 'error' });
-        Router.push('/')
+        addToast("Please connect your wallet", { appearance: "error" });
+        Router.push("/");
       }
     }
+  }, [isReady, accountId, isLoggedIn, addToast]);
 
-  }, [isReady, accountId, isLoggedIn])
   return (
     <div className="">
       <Head>
@@ -37,15 +41,19 @@ export default function LayoutDashboard({ children }: { children: React.ReactNod
         <meta name="og:title" content={siteTitle} />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      {accountId && (<div>
-        {!isReady && <div className="flex flex-grow justify-center items-center ">
-          <NearLogo className="w-32 h-32 animate-spin antialiased" />
-        </div>}
+      {accountId && (
+        <div>
+          {!isReady && (
+            <div className="flex flex-grow justify-center items-center ">
+              <NearLogo className="w-32 h-32 animate-spin antialiased" />
+            </div>
+          )}
 
-        {isReady && (
-          <main>{children}</main>
-        )}
-      </div>)}
+          {isReady && <main>{children}</main>}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
+
+export default LayoutDashboard;
