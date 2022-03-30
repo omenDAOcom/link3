@@ -11,9 +11,6 @@ const Link3Item = ({ link, onEdit }: Props) => {
   const handleEdit = () => {
     onEdit(link);
   };
-
-
-
   return (
     <div className="w-full relative">
       <div className="absolute top-1 right-2">
