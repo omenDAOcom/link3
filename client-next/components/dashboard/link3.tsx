@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "../../near/types";
 import ModalEditLink from "../modal/modal_edit_link";
-import LinkTreeItem from "./link_tree_item";
+import LinkTreeItem from "./link3_item";
 
 
 interface Props {
@@ -12,7 +12,7 @@ const LinkTree = ({ links }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [link, setLink] = useState<Link | null>(null);
 
-  const openModal = (link: Link) => {
+  const openModalEdit = (link: Link) => {
     setIsOpen(true);
     setLink(link);
   };
@@ -24,7 +24,7 @@ const LinkTree = ({ links }: Props) => {
   return (
     <>
       <div className="space-y-4 w-full">
-        {links.map((link: Link) => <LinkTreeItem key={link.id} link={link} onEditClick={openModal} />)}
+        {links.map((link: Link) => <LinkTreeItem key={link.id} link={link} onEdit={openModalEdit} />)}
       </div>
       {
         isOpen &&

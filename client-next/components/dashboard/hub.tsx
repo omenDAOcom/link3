@@ -2,7 +2,7 @@ import {  Hub } from "../../near/types";
 import { useMemo, useState } from "react";
 import { useNear } from "../../context/near";
 // Components
-import LinkTree from "./link_tree";
+import LinkTree from "./link3";
 import Link from "next/link";
 interface Props {
   accountId: string;

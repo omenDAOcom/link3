@@ -31,7 +31,7 @@ const LinkForm = ({ link }: Props) => {
     }
   }, [link])
 
-  const uploadToServer = async (image: File): Promise<string | null> => {
+  const uploadImage = async (image: File): Promise<string | null> => {
     try {
       const body = new FormData();
       body.append("file", image);
@@ -44,7 +44,7 @@ const LinkForm = ({ link }: Props) => {
       const response = await axios.post('/api/file', body, config);
       return response.data
     } catch (error) {
-      console.error("uploadToServer", error)
+      console.error("uploadImage", error)
       return null
     }
   };
@@ -53,7 +53,7 @@ const LinkForm = ({ link }: Props) => {
     const { title, description, uri } = data
     const link: Link = { title, description, uri }
     if (tempImg) {
-      const cid = await uploadToServer(tempImg)
+      const cid = await uploadImage(tempImg)
       console.log("cid", cid)
       link.image_uri = cid
     }
