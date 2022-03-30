@@ -1,21 +1,19 @@
-import Head from 'next/head'
-import Router from 'next/router';
-import { useEffect } from 'react';
-import { useNear } from '../context/near';
-import { NearLogo } from './icons/near';
+import Head from "next/head";
+import Router from "next/router";
+import { useEffect } from "react";
+import { useNear } from "../context/near";
+import { NearLogo } from "./icons/near";
 
-export const siteTitle = 'Link3'
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const siteTitle = "Link3";
+  const { isReady, accountId } = useNear();
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { isReady, accountId, isLoggedIn } = useNear();
   useEffect(() => {
-    if (isReady) {
-      if (!accountId) {
-        Router.push('/')
-      }
+    if (isReady && !accountId) {
+      Router.push("/");
     }
+  }, [isReady, accountId]);
 
-  }, [isReady, accountId, isLoggedIn])
   return (
     <div className="">
       <Head>
@@ -33,13 +31,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <meta name="og:title" content={siteTitle} />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      {!isReady && <div className="flex flex-grow justify-center items-center ">
-        <NearLogo className="w-32 h-32 animate-spin antialiased" />
-      </div>}
-
-      {isReady && (
-        <main>{children}</main>
+      {!isReady && (
+        <div className="flex flex-grow justify-center items-center ">
+          <NearLogo className="w-32 h-32 animate-spin antialiased" />
+        </div>
       )}
+      {isReady && <main>{children}</main>}
     </div>
-  )
-}
+  );
+};
+
+export default Layout;

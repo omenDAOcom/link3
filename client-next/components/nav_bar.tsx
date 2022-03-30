@@ -1,17 +1,16 @@
-import Link from "next/link"
-interface Links {
-  href: string,
-  text: string
-}
-interface Props {
-  links: Array<Links>
-  className?: string
+import Link from "next/link";
+
+interface Navigation {
+  href: string;
+  text: string;
 }
 
-const NavBar = ({
-  links,
-  className,
-}: Props) => {
+interface Props {
+  links: Array<Navigation>;
+  className?: string;
+}
+
+const NavBar = ({ links, className }: Props) => {
   return (
     <>
       <div className="">
@@ -26,7 +25,7 @@ const NavBar = ({
         </ul>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default NavBar
+export default NavBar;

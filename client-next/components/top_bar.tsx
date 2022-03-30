@@ -1,7 +1,7 @@
-import Link from "next/link";
 import Auth from "./auth";
-import { Logo } from "./icons/logo";
+import Link from "next/link";
 import NavBar from "./nav_bar";
+import { Logo } from "./icons/logo";
 
 const links = [
   {
@@ -12,7 +12,7 @@ const links = [
     href: "/dashboard",
     text: "Dashboard",
   },
-]
+];
 
 const TopBar = () => {
   return (
@@ -28,6 +28,6 @@ const TopBar = () => {
       </div>
     </>
   );
-}
+};
 
 export default TopBar;

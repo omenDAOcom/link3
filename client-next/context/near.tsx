@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import nearConfig from "../near/config";
 import Big from "big.js";
 import { Hub, HubDto, Link } from "../near/types";
@@ -23,8 +29,8 @@ const nearContextDefaultValues: nearContextType = {
   accountId: null,
   isLoggedIn: false,
   hub: null,
-  show: () => { },
-  logout: () => { },
+  show: () => {},
+  logout: () => {},
   getHub: () => Promise.resolve(),
   addLink: () => Promise.resolve(),
   createHub: () => Promise.resolve(),
@@ -42,7 +48,6 @@ type Props = {
 };
 
 export function NearProvider({ children }: Props) {
-
   const [selector, setSelector] = useState<any>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -51,8 +56,8 @@ export function NearProvider({ children }: Props) {
   const [hub, setHub] = useState<Hub | null>(null);
 
   const initWallet = async () => {
-    const walletSelector = await import("near-wallet-selector")
-    const NearWalletSelector = walletSelector.default
+    const walletSelector = await import("near-wallet-selector");
+    const NearWalletSelector = walletSelector.default;
     const selector = new NearWalletSelector(nearConfig());
     await selector.init();
     setSelector(selector);
@@ -62,7 +67,6 @@ export function NearProvider({ children }: Props) {
     initWallet();
   }, []);
 
-
   const handleSignIn = async () => {
     if (selector) {
       const account = await selector.getAccount();
@@ -71,10 +75,11 @@ export function NearProvider({ children }: Props) {
       setAccountId(account ? account.accountId : null);
       setIsReady(true);
     }
-  }
+  };
 
   useEffect(() => {
     handleSignIn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector]);
 
   useEffect(() => {
@@ -82,8 +87,8 @@ export function NearProvider({ children }: Props) {
       selector.on("signIn", handleSignIn);
       return () => selector.off("signIn", handleSignIn);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector]);
-
 
   const logout = async () => {
     await selector.signOut();
@@ -101,29 +106,33 @@ export function NearProvider({ children }: Props) {
       }
       const result = await selector.contract.view({
         methodName: "get",
-        args: { account_id }
+        args: { account_id },
       });
-      setHub(result)
-      return result
+      setHub(result);
+      return result;
     } catch (error) {
       console.log("error", error);
       throw error;
     }
   }
 
-  const BOATLOAD_OF_GAS = Big(3).times(10 ** 13).toFixed();
+  const BOATLOAD_OF_GAS = Big(3)
+    .times(10 ** 13)
+    .toFixed();
   async function addLink(props: Link) {
     try {
       console.log("CONTRACT CALL addLink", props);
       const result = await selector.contract.signAndSendTransaction({
-        actions: [{
-          type: "FunctionCall",
-          params: {
-            methodName: "add_link",
-            args: { ...props },
-            gas: BOATLOAD_OF_GAS,
-          }
-        }]
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "add_link",
+              args: { ...props },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
       });
       console.log("result", result);
       getHub(result.transaction.signer_id as string);
@@ -136,14 +145,16 @@ export function NearProvider({ children }: Props) {
     try {
       console.log("CONTRACT CALL updateLink", props);
       const result = await selector.contract.signAndSendTransaction({
-        actions: [{
-          type: "FunctionCall",
-          params: {
-            methodName: "update_link",
-            args: { ...props },
-            gas: BOATLOAD_OF_GAS,
-          }
-        }]
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "update_link",
+              args: { ...props },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
       });
       console.log("result", result);
       getHub(result.transaction.signer_id as string);
@@ -156,14 +167,16 @@ export function NearProvider({ children }: Props) {
     try {
       console.log("CONTRACT CALL hub", props);
       const result = await selector.contract.signAndSendTransaction({
-        actions: [{
-          type: "FunctionCall",
-          params: {
-            methodName: "create",
-            args: { ...props },
-            gas: BOATLOAD_OF_GAS,
-          }
-        }]
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "create",
+              args: { ...props },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
       });
       console.log("result", result);
       return result;
@@ -172,7 +185,6 @@ export function NearProvider({ children }: Props) {
       throw error;
     }
   }
-
 
   const value = {
     hub,
@@ -190,12 +202,9 @@ export function NearProvider({ children }: Props) {
 
   return (
     <>
-      <NearContext.Provider value={value}>
-        {children}
-      </NearContext.Provider>
+      <NearContext.Provider value={value}>{children}</NearContext.Provider>
     </>
   );
 }
-
 
 export default NearProvider;

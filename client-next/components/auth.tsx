@@ -1,13 +1,13 @@
 import { useNear } from "../context/near";
 import ButtonLogin from "./buttons";
-import { NearLogo } from "./icons/near";
 
-export default function Auth({
-  className
-}: {
-  className?: string
-}) {
+interface Props {
+  className?: string;
+}
+
+const Auth = ({ className }: Props) => {
   const { accountId, isLoggedIn, logout, show } = useNear();
+
   const handleAuth = () => {
     if (isLoggedIn) {
       logout();
@@ -15,17 +15,27 @@ export default function Auth({
       show();
     }
   };
+
   if (isLoggedIn) {
     return (
       <div>
-        <button className="">
-          {accountId}
-        </button>
-        <ButtonLogin isLoading={false} isLoggedIn={isLoggedIn} onClick={handleAuth} />
+        <button className="">{accountId}</button>
+        <ButtonLogin
+          isLoading={false}
+          isLoggedIn={isLoggedIn}
+          onClick={handleAuth}
+        />
       </div>
-    )
+    );
   }
+
   return (
-    <ButtonLogin isLoading={false} isLoggedIn={isLoggedIn} onClick={handleAuth} />
-  )
-}
+    <ButtonLogin
+      isLoading={false}
+      isLoggedIn={isLoggedIn}
+      onClick={handleAuth}
+    />
+  );
+};
+
+export default Auth;
