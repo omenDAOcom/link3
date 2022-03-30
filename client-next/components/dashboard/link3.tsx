@@ -16,6 +16,7 @@ const Link3 = ({ links }: Props) => {
     setIsOpen(true);
     setLink(link);
   };
+  
   const closeModal = () => {
     setIsOpen(false);
     setLink(null);
