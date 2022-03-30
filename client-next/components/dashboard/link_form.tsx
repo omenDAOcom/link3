@@ -1,14 +1,13 @@
 import axios from "axios";
-import { useState } from "react";
 import { Link } from "../../near/types";
-import { useForm } from 'react-hook-form'
-import { useNear } from "../../context/near"
+import { useForm } from 'react-hook-form';
+import { useState, useEffect } from "react";
+import { useNear } from "../../context/near";
+import { useToasts } from "react-toast-notifications";
 // Components
+import { NearLogo } from "../icons/near";
 import UploadImage from "../utils/upload_image";
 import LabelAndErrors from "../utils/label_error";
-import { useEffect } from "react";
-import { useToasts } from "react-toast-notifications";
-import { NearLogo } from "../icons/near";
 
 interface Props {
   cta: string;
@@ -53,7 +52,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       const response = await axios.post('/api/file', body, config);
       return response.data
     } catch (error) {
-      console.error("uploadImage", error)
+      console.error("uploadImage error:", error)
       return null
     }
   };
@@ -84,6 +83,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       console.error("onSubmit", error)
     }
   });
+
   const uriValidator = {
     required: { value: true, message: 'Uri is required' },
     minLength: { value: 3, message: 'Uri cannot be less than 3 character' },
@@ -100,9 +100,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   return (
     isReady && (
       <form
-        className={` flex flex-col space-y-4 px-8 py-4 rounded max-w-2xl w-full bg-surface
-        `}
         onSubmit={handleSubmit(onSubmit as any)}
+        className={`flex flex-col space-y-4 px-8 py-4 rounded max-w-2xl w-full bg-surface`}
       >
         <div className="flex flex-col space-y-1">
           <LabelAndErrors title="Uri" error={errors.uri} />
@@ -112,7 +111,6 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
             type="link"
             placeholder="https://www.google.com"
             {...register('uri', { value: uri, onChange: (event) => setUri(event.target.value), ...uriValidator })}
-
           />
         </div>
 
@@ -123,9 +121,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
             id="title"
             type="text"
             placeholder="Google"
-            {...register('title', titleValidator)}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            {...register('title', { value: title, onChange: (event) => setTitle(event.target.value), ...titleValidator })}
           />
         </div>
 
@@ -136,9 +132,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
             id="description"
             type="text"
             placeholder="Search Engine"
-            {...register('description', descriptionValidator)}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
+            {...register('description', { value: description, onChange: (event) => setDescription(event.target.value), ...descriptionValidator })}
           />
         </div>
 
