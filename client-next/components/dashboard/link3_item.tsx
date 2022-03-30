@@ -8,7 +8,7 @@ interface Props {
 const Link3Item = ({ link, onEdit }: Props) => {
   const { title, image_uri, uri, description } = link;
 
-    const handleEdit = () => {
+  const handleEdit = () => {
     onEdit(link);
   };
 
@@ -27,8 +27,7 @@ const Link3Item = ({ link, onEdit }: Props) => {
             <img
               src={image_uri ? `https://ipfs.io/ipfs/${image_uri}` : "https://picsum.photos/200"}
               alt={title}
-              className='object-cover object-center rounded-full'
-              placeholder="blur"
+              className='object-cover object-center rounded-full min-w-full min-h-full'
             />
           </div>
           <div>
