@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "../../near/types";
 import ModalEditLink from "../modal/modal_edit_link";
 import Link3Item from "./link3_item";
-
-
 interface Props {
   links: Array<Link>;
 }
