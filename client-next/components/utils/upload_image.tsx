@@ -1,15 +1,20 @@
+import { useEffect } from "react"
 import { useRef, useState } from "react"
 
 interface Props {
+  initialImage?: string,
   setImage: (image: File) => void
 }
-const UploadFile = (props: Props) => {
+const UploadFile = ({ initialImage, setImage }: Props) => {
 
-  const { setImage } = props
   const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   const inputImage = useRef<HTMLInputElement>(null);
-
+  useEffect(() => {
+    if (initialImage) {
+      setImageUrl(initialImage)
+    }
+  }, [initialImage])
 
   const dropHandler = (event: any) => {
     event.preventDefault()

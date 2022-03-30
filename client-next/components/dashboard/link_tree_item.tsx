@@ -29,9 +29,8 @@ const LinkTreeItem = ({ link, onEditClick }: Props) => {
   return (
     <div className="w-full relative">
       <div className="absolute top-1 right-2">
-        <div onClick={cenas} className="clickable text-xs font-medium tracking-wide hover:text-primary">edit</div>
+        <div onClick={openModal} className="clickable text-xs font-medium tracking-wide hover:text-primary">edit</div>
       </div>
-      <button onClick={openModal}>Open Modal</button>
       <a href={uri} target="_blank"
         rel="noreferrer"
       >
@@ -40,7 +39,7 @@ const LinkTreeItem = ({ link, onEditClick }: Props) => {
             <img
               src={image_uri ? `https://ipfs.io/ipfs/${image_uri}` : "https://picsum.photos/200"}
               alt={title}
-              className='object-cover object-center rounded-full'
+              className='object-cover object-center rounded-full min-w-full min-h-full'
               placeholder="blur"
             />
           </div>

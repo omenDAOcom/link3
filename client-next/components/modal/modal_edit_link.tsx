@@ -20,7 +20,7 @@ const ModalEditLink = ({
         onClose={onClose}
       >
         <h2 className='text-primary text-3xl font-bold tracking-wider'>Edit <span className='italic'> {link.title}</span></h2>
-        <LinkForm link={link} />
+        <LinkForm cta='Edit' link={link} onSubmitResolve={onClose} />
       </Modal>
     </>
   );

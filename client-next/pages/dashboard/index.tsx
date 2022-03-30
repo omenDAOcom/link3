@@ -21,7 +21,7 @@ const Dashboard: NextPage = () => {
         {accountId &&
           (<Hub accountId={accountId} />)
         }
-        <LinkForm />
+        <LinkForm cta='Create' />
       </main>
 
       <footer className="">
