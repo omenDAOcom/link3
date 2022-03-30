@@ -48,9 +48,7 @@ const Modal = ({
             className="absolute inset-0 bg-black/80 z-20 cursor-pointer"
             onClick={onRequestClose} />
           <div className="relative z-30 ">
-            <IconClose className="absolute top-4 right-4 w-8
-          text-paragraph hover:text-primary
-          clickable
+            <IconClose className="absolute top-4 right-4 w-8 text-paragraph hover:text-primary clickable
           " onClick={onRequestClose} />
             <div className={`${contentClass} bg-surface p-10 min-w-[50vw] flex flex-col items-center justify-center rounded space-y-10 `}>
               {children}
