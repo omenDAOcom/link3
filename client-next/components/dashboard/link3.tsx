@@ -12,7 +12,7 @@ const Link3 = ({ links }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [link, setLink] = useState<Link | null>(null);
 
-  const openModalEdit = (link: Link) => {
+  const openModal = (link: Link) => {
     setIsOpen(true);
     setLink(link);
   };
@@ -24,7 +24,7 @@ const Link3 = ({ links }: Props) => {
   return (
     <>
       <div className="space-y-4 w-full">
-        {links.map((link: Link) => <Link3Item key={link.id} link={link} onEdit={openModalEdit} />)}
+        {links.map((link: Link) => <Link3Item key={link.id} link={link} onEdit={openModal} />)}
       </div>
       {
         isOpen &&
