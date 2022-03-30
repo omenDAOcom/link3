@@ -3,56 +3,56 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Rubik';
+  font-family: "Rubik";
   font-weight: 400;
-  src: url('../assets/fonts/Rubik-VariableFont_wght.ttf');
+  src: url("../assets/fonts/Rubik-VariableFont_wght.ttf");
 }
 
 /* Declare theme color */
 @layer base {
-  :root{
+  :root {
     --color-primary: 242, 0, 145;
-    --color-primary-hover: 113,113,143;
-    --color-on-primary: 255,255,255;
+    --color-primary-hover: 113, 113, 143;
+    --color-on-primary: 255, 255, 255;
     --color-on-primary-hover: 222, 222, 222;
 
     --color-accent: 54, 113, 233;
     --color-accent-hover: 74, 133, 253;
 
-    --color-success:101,187,148;
-    --color-warning:255,152,0;
-    --color-danger:215, 50, 50;
+    --color-success: 101, 187, 148;
+    --color-warning: 255, 152, 0;
+    --color-danger: 215, 50, 50;
 
     --color-surface: 255, 255, 255;
     --color-surface-secondary: 250, 251, 255;
-    --color-on-surface: 0,0,0;
+    --color-on-surface: 0, 0, 0;
 
     --color-background: 248, 249, 251;
-    --color-background-secondary: 43,7,110;
-    
+    --color-background-secondary: 43, 7, 110;
+
     --color-paragraph: 0, 0, 0;
     --color-paragraph-variant: 50, 50, 50;
   }
 
-  .dark{
+  .dark {
     --color-primary: 242, 0, 145;
     --color-primary-hover: 252, 0, 175;
-    --color-on-primary: 255,255,255;
-    --color-on-primary-hover: 255,255,255;
+    --color-on-primary: 255, 255, 255;
+    --color-on-primary-hover: 255, 255, 255;
 
     --color-accent: 54, 113, 233;
     --color-accent-hover: 74, 133, 253;
 
-    --color-success:101,187,148;
-    --color-warning:255,152,0;
-    --color-danger:212, 88, 91;
+    --color-success: 101, 187, 148;
+    --color-warning: 255, 152, 0;
+    --color-danger: 212, 88, 91;
 
     --color-surface: 50, 50, 50;
-    --color-on-surface: 255,255,255;
+    --color-on-surface: 255, 255, 255;
 
     --color-background: 0, 0, 0;
     --color-background-secondary: 250, 251, 255;
-    
+
     --color-paragraph: 255, 255, 255;
     --color-paragraph-variant: 255, 255, 255;
   }
@@ -61,58 +61,59 @@
 /* Util for font weight variations */
 @layer utilities {
   .font-thin {
-      font-variation-settings: 'wght' 100;
+    font-variation-settings: "wght" 100;
   }
   .font-extralight {
-      font-variation-settings: 'wght' 200;
+    font-variation-settings: "wght" 200;
   }
   .font-light {
-      font-variation-settings: 'wght' 300;
+    font-variation-settings: "wght" 300;
   }
   .font-normal {
-      font-variation-settings: 'wght' 400;
+    font-variation-settings: "wght" 400;
   }
   .font-medium {
-      font-variation-settings: 'wght' 500;
+    font-variation-settings: "wght" 500;
   }
   .font-semibold {
-      font-variation-settings: 'wght' 600;
+    font-variation-settings: "wght" 600;
   }
   .font-bold {
-      font-variation-settings: 'wght' 600;
+    font-variation-settings: "wght" 600;
   }
   .font-extrabold {
-      font-variation-settings: 'wght' 800;
+    font-variation-settings: "wght" 800;
   }
   .font-black {
-      font-variation-settings: 'wght' 900;
+    font-variation-settings: "wght" 900;
   }
 }
 
 html,
-body{
-   @apply bg-background text-paragraph dark;
+body {
+  @apply bg-background text-paragraph dark;
 }
-.transition-smooth{
+.transition-smooth {
   @apply transition;
   @apply ease-in-out;
   @apply duration-500;
 }
-.clickable{
+.clickable {
   @apply transition;
   @apply ease-in-out;
   @apply duration-500;
   @apply cursor-pointer;
 }
 
-.label{
+.label {
   @apply text-paragraph;
   @apply text-sm;
   @apply uppercase;
   @apply font-medium;
   @apply tracking-wide;
 }
-.label-error{
+
+.label-error {
   @apply text-danger;
   @apply text-sm;
   @apply uppercase;
@@ -120,14 +121,18 @@ body{
   @apply tracking-wide;
 }
 
-.input{
+.input {
   @apply bg-transparent;
   @apply ring-2 ring-primary;
   @apply text-on-surface;
   @apply rounded;
   @apply p-2;
-
 }
-.input:focus,input:focus,select:focus,button:focus,.clickable:focus{
+
+.input:focus,
+input:focus,
+select:focus,
+button:focus,
+.clickable:focus {
   @apply outline-none;
 }
