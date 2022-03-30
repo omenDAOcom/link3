@@ -111,7 +111,7 @@ const LinkForm = ({ link }: Props) => {
           className='input input-text'
           id="description"
           type="text"
-          placeholder="Search Engine"
+          placeholder="Write a short description"
           {...register('description', descriptionValidator)}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
