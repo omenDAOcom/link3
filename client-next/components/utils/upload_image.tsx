@@ -4,17 +4,19 @@ interface Props {
   initialImage: string | null;
   setImage: (image: File) => void;
 }
+
 const UploadFile = ({ initialImage, setImage }: Props) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const inputImage = useRef<HTMLInputElement>(null);
 
-  const dragOverHandler = (event: any) => event.preventDefault();
   useEffect(() => {
     if (initialImage) {
       setImageUrl(initialImage);
     }
   }, [initialImage]);
+  
+  const dragOverHandler = (event: any) => event.preventDefault();
 
   const dropHandler = (event: any) => {
     event.preventDefault();
