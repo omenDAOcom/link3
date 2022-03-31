@@ -21,6 +21,7 @@ type nearContextType = {
   addLink: (props: Link) => Promise<any>;
   createHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
+  deleteLink: (id: string) => Promise<any>;
 };
 
 const nearContextDefaultValues: nearContextType = {
@@ -35,6 +36,7 @@ const nearContextDefaultValues: nearContextType = {
   addLink: () => Promise.resolve(),
   createHub: () => Promise.resolve(),
   updateLink: () => Promise.resolve(),
+  deleteLink: () => Promise.resolve(),
 };
 
 const NearContext = createContext<nearContextType>(nearContextDefaultValues);
@@ -63,10 +65,6 @@ export function NearProvider({ children }: Props) {
     setSelector(selector);
   };
 
-  useEffect(() => {
-    initWallet();
-  }, []);
-
   const handleSignIn = async () => {
     if (selector) {
       const account = await selector.getAccount();
@@ -76,6 +74,10 @@ export function NearProvider({ children }: Props) {
       setIsReady(true);
     }
   };
+
+  useEffect(() => {
+    initWallet();
+  }, []);
 
   useEffect(() => {
     handleSignIn();
@@ -95,6 +97,7 @@ export function NearProvider({ children }: Props) {
     setIsLoggedIn(await selector.isSignedIn());
     setAccountId(null);
   };
+
   const show = () => {
     selector.show();
   };
@@ -119,6 +122,7 @@ export function NearProvider({ children }: Props) {
   const BOATLOAD_OF_GAS = Big(3)
     .times(10 ** 13)
     .toFixed();
+
   async function addLink(props: Link) {
     try {
       console.log("CONTRACT CALL addLink", props);
@@ -141,6 +145,7 @@ export function NearProvider({ children }: Props) {
       throw error;
     }
   }
+
   async function updateLink(props: Link) {
     try {
       console.log("CONTRACT CALL updateLink", props);
@@ -163,6 +168,7 @@ export function NearProvider({ children }: Props) {
       throw error;
     }
   }
+
   async function createHub(props: HubDto) {
     try {
       console.log("CONTRACT CALL hub", props);
@@ -186,6 +192,29 @@ export function NearProvider({ children }: Props) {
     }
   }
 
+  async function deleteLink(id: string) {
+    try {
+      console.log("CONTRACT CALL deleteLink", id);
+      const result = await selector.contract.signAndSendTransaction({
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "delete_link",
+              args: { id },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
+      });
+      console.log("result", result);
+      getHub(result.transaction.signer_id as string);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   const value = {
     hub,
     isReady,
@@ -198,6 +227,7 @@ export function NearProvider({ children }: Props) {
     addLink,
     createHub,
     updateLink,
+    deleteLink,
   };
 
   return (

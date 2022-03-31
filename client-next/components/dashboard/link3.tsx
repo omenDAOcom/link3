@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "../../near/types";
-import ModalEditLink from "../modal/modal_edit_link";
+import { useNear } from "../../context/near";
+// Components
 import Link3Item from "./link3_item";
+import ModalEditLink from "../modal/modal_edit_link";
 
 interface Props {
   links: Array<Link>;
 }
 
 const Link3 = ({ links }: Props) => {
+  const { deleteLink } = useNear();
+
   const [isOpen, setIsOpen] = useState(false);
   const [link, setLink] = useState<Link | null>(null);
 
@@ -21,11 +25,29 @@ const Link3 = ({ links }: Props) => {
     setLink(null);
   };
 
+  const confirmDelete = async (link: Link) => {
+    const { title, id } = link;
+    console.log(`Deleting ${title} with id: ${id}`);
+    if (typeof id !== "undefined") {
+      const confirmed = window.confirm(
+        `Are you sure you want to delete ${title}?`
+      );
+      if (confirmed) {
+        await deleteLink(id);
+      }
+    }
+  };
+
   return (
     <>
       <div className="space-y-4 w-full">
         {links.map((link: Link) => (
-          <Link3Item key={link.id} link={link} onEdit={openModal} />
+          <Link3Item
+            key={link.id}
+            link={link}
+            onEdit={openModal}
+            onDelete={confirmDelete}
+          />
         ))}
       </div>
       {isOpen && link && (
