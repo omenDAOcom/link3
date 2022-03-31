@@ -2,12 +2,12 @@ import axios from "axios";
 import { Link } from "../../near/types";
 import { useForm } from "react-hook-form";
 import { useNear } from "../../context/near";
+import { useState, useEffect } from "react";
+import { useToasts } from "react-toast-notifications";
 // Components
 import { NearLogo } from "../icons/near";
 import UploadImage from "../utils/upload_image";
 import LabelAndErrors from "../utils/label_error";
-import { useState, useEffect } from "react";
-import { useToasts } from "react-toast-notifications";
 
 interface Props {
   cta: string;
@@ -31,7 +31,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const [uri, setUri] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [imageUri, setImageCid] = useState<string>("");
+  const [imageUri, setImageUri] = useState<string>("");
   const [tempImg, setTempImg] = useState<File | null>(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       setDescription(link.description);
       setUri(link.uri);
       if (link.image_uri) {
-        setImageCid(link.image_uri);
+        setImageUri(link.image_uri);
       }
       setIsReady(true);
     }
