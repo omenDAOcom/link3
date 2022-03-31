@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface Props {
   initialImage: string | null;
