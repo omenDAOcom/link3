@@ -26,6 +26,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
 
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+
   const [uri, setUri] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -44,6 +46,12 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     }
     setIsReady(true);
   }, [link]);
+
+  useEffect(() => {
+    if (tempImg) {
+      setIsDirty(true);
+    }
+  }, [tempImg]);
 
   const uploadImage = async (image: File): Promise<string | null> => {
     try {
@@ -95,6 +103,18 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     }
   });
 
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "uri") {
+      setUri(value);
+    } else if (name === "title") {
+      setTitle(value);
+    } else if (name === "description") {
+      setDescription(value);
+    }
+    setIsDirty(true);
+  };
+
   const uriValidator = {
     required: { value: true, message: "Uri is required" },
     minLength: { value: 3, message: "Uri cannot be less than 3 character" },
@@ -126,8 +146,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
               type="link"
               placeholder="https://www.google.com"
               {...register("uri", {
+                onChange,
                 value: uri,
-                onChange: (event) => setUri(event.target.value),
                 ...uriValidator,
               })}
             />
@@ -141,8 +161,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
               type="text"
               placeholder="Google"
               {...register("title", {
+                onChange,
                 value: title,
-                onChange: (event) => setTitle(event.target.value),
                 ...titleValidator,
               })}
             />
@@ -156,8 +176,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
               type="text"
               placeholder="Search Engine"
               {...register("description", {
+                onChange,
                 value: description,
-                onChange: (event) => setDescription(event.target.value),
                 ...descriptionValidator,
               })}
             />
@@ -175,11 +195,14 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
 
           <button
             type="submit"
-            className={`
-          bg-primary text-on-primary px-4 py-2 rounded transition-smooth
-          flex space-x-4 items-center justify-center
-          ${isPending ? "opacity-50 cursor-not-allowed" : "opacity-100"}
-        `}
+            disabled={isPending}
+            className={` bg-primary text-on-primary px-4 py-2 rounded transition-smooth flex space-x-4 items-center justify-center
+             ${
+               isPending || !isDirty
+                 ? "opacity-50 cursor-not-allowed"
+                 : "opacity-100"
+             }
+            `}
           >
             <p>{cta}</p>
             <NearLogo
