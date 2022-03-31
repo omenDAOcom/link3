@@ -108,7 +108,12 @@ impl Link3 {
             env::panic(b"Only the owner can create a link");
         }
         let last = self.links.last();
-        let id = u64::try_from(if last.is_some() { last.unwrap().id() + 1 } else { 0 }).unwrap();
+        let id = u64::try_from(if last.is_some() {
+            last.unwrap().id() + 1
+        } else {
+            0
+        })
+        .unwrap();
         let item = Item::new(id, uri, title, description, image_uri, is_published);
 
         self.links.push(item);
@@ -143,6 +148,28 @@ impl Link3 {
         self.links[index] = item;
         // Return updated item
         &self.links[index]
+    }
+
+    pub fn delete_link(&mut self, id: u64) {
+        if env::signer_account_id() != self.owner_account_id {
+            panic!("Only the owner can delete a link");
+        }
+        let index = self
+            .links
+            .iter()
+            .position(|item| item.id() == id)
+            .unwrap_or_else(|| {
+                panic!("Link does not exist");
+            });
+        log!("Deleting link with index: {}", id);
+
+        if self.links[index].is_published() {
+            panic!("Cannot delete published link");
+        }
+
+        // Update item
+        self.links.remove(index);
+        // Return updated item
     }
 }
 
@@ -588,7 +615,7 @@ mod tests {
         let item = contract.update_link(
             0,
             "some_uri".to_string(),
-            "some_title".to_string(),
+            "another_title".to_string(),
             "some_description".to_string(),
             Some("image".to_string()),
             true,
@@ -596,8 +623,131 @@ mod tests {
         // Then
         assert_eq!(
             item.read().title,
-            "some_title".to_string(),
+            "another_title".to_string(),
             "Should've returned an item"
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "Link does not exist")]
+    fn delete_item_with_wrong_id_panics() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        // When
+        contract.delete_link(2);
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    #[should_panic(expected = "Cannot delete published link")]
+    fn delete_item_published() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            true,
+        );
+
+        // When
+        contract.delete_link(0);
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    #[should_panic(expected = "Only the owner can delete a link")]
+    fn delete_item_not_own() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        // When
+        let alt_context = get_alternative_context(vec![], false, Some(1));
+        testing_env!(alt_context);
+        contract.delete_link(0);
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    fn delete_last_item() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        // When
+        contract.delete_link(0);
+        // Then
+        assert!(contract.list_all().is_empty(), "Should've deleted the item");
+    }
+
+    #[test]
+    fn delete_item() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        let list_lenght = contract.list_all().len();
+        // When
+        contract.delete_link(0);
+        // Then
+        assert_eq!(
+            list_lenght - 1,
+            contract.list_all().len(),
+            "Should've deleted the item"
         );
     }
 }
