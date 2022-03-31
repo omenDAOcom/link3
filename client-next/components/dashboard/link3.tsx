@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
+import { useToasts } from "react-toast-notifications";
 // Components
 import Link3Item from "./link3_item";
 import ModalEditLink from "../modal/modal_edit_link";
@@ -11,8 +12,10 @@ interface Props {
 
 const Link3 = ({ links }: Props) => {
   const { deleteLink } = useNear();
+  const { addToast } = useToasts();
 
   const [isOpen, setIsOpen] = useState(false);
+
   const [link, setLink] = useState<Link | null>(null);
 
   const openModal = (link: Link) => {
@@ -27,6 +30,7 @@ const Link3 = ({ links }: Props) => {
 
   const confirmDelete = async (link: Link) => {
     const { title, id } = link;
+
     console.log(`Deleting ${title} with id: ${id}`);
     if (typeof id !== "undefined") {
       const confirmed = window.confirm(
@@ -34,6 +38,7 @@ const Link3 = ({ links }: Props) => {
       );
       if (confirmed) {
         await deleteLink(id);
+        addToast("Link deleted", { appearance: "success" });
       }
     }
   };
