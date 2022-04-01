@@ -159,6 +159,17 @@ impl Link3 {
         self.links.remove(index);
     }
 
+    pub fn update_item_status(&mut self, id: u64, is_published: bool) {
+        if env::signer_account_id() != self.owner_account_id {
+            env::panic(b"Only the owner can update a link");
+        }
+
+        let index = self.get_index(id);
+
+        // Update item
+        self.links[index].set_published(is_published);
+    }
+
     /*******************
      * PRIVATE METHODS *
      *******************/
@@ -785,5 +796,32 @@ mod tests {
         let index = contract.get_index(0);
         // Then
         assert_eq!(index, 0, "Should've returned the index of the item");
+    }
+
+    #[test]
+    fn update_item_status() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        // When
+        contract.update_item_status(0, true);
+        // Then
+        let index = contract.get_index(0);
+
+        assert_eq!(
+            contract.links[index].is_published(),
+            true,
+            "Should've published the item"
+        );
     }
 }
