@@ -154,6 +154,7 @@ impl Link3 {
         if env::signer_account_id() != self.owner_account_id {
             panic!("Only the owner can delete a link");
         }
+
         let index = self
             .links
             .iter()
@@ -163,13 +164,13 @@ impl Link3 {
             });
         log!("Deleting link with index: {}", id);
 
-        if self.links[index].is_published() {
-            panic!("Cannot delete published link");
-        }
+        // // Comment for now, until we sure that we can't delete published items
+        // if self.links[index].is_published() {
+        //     panic!("Cannot delete published link");
+        // }
 
-        // Update item
+        // Remove item
         self.links.remove(index);
-        // Return updated item
     }
 }
 
@@ -650,27 +651,28 @@ mod tests {
         // - Should panic
     }
 
-    #[test]
-    #[should_panic(expected = "Cannot delete published link")]
-    fn delete_item_published() {
-        // Given
-        let context = get_context(vec![], false, Some(1));
-        testing_env!(context);
-        let mut contract = generate_contract(Some(false));
+    // // Comment for now, until we sure that we can't delete published items
+    // #[test]
+    // #[should_panic(expected = "Cannot delete published link")]
+    // fn delete_item_published() {
+    //     // Given
+    //     let context = get_context(vec![], false, Some(1));
+    //     testing_env!(context);
+    //     let mut contract = generate_contract(Some(false));
 
-        contract.create_link(
-            "some_uri".to_string(),
-            "some_title".to_string(),
-            "some_description".to_string(),
-            Some("image".to_string()),
-            true,
-        );
+    //     contract.create_link(
+    //         "some_uri".to_string(),
+    //         "some_title".to_string(),
+    //         "some_description".to_string(),
+    //         Some("image".to_string()),
+    //         true,
+    //     );
 
-        // When
-        contract.delete_link(0);
-        // Then
-        // - Should panic
-    }
+    //     // When
+    //     contract.delete_link(0);
+    //     // Then
+    //     // - Should panic
+    // }
 
     #[test]
     #[should_panic(expected = "Only the owner can delete a link")]

@@ -102,15 +102,18 @@ impl MainHub {
         self.hub.insert(&env::signer_account_id(), &link3);
     }
 
-    pub fn delete_link(&mut self, id: u64) {
+    pub fn delete_link(&mut self, id: u64) -> &MainHub {
         let mut link3: Link3 = Self::get(&self, env::signer_account_id())
             .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
-        // Update item
+        // Delete item
         link3.delete_link(id);
 
         // Save to hub state
         self.hub.insert(&env::signer_account_id(), &link3);
+
+        // Return self
+        return self;
     }
 }
 
@@ -265,7 +268,6 @@ mod tests {
 
         let mut main = MainHub::default();
         main.create("Hello".to_string(), "World".to_string(), None, Some(true));
-        // When
         main.add_link(
             "uri".to_string(),
             "title".to_string(),
@@ -273,6 +275,8 @@ mod tests {
             Some("image_uri".to_string()),
             Some(false),
         );
+
+        // When
         main.delete_link(0);
         // Then
         let link3 = main.get("alice.testnet".to_string());
