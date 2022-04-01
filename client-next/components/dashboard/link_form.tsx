@@ -76,6 +76,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const onSubmit = handleSubmit(async (data) => {
     const { title, description, uri } = data;
     const newLink: Link = { title, description, uri };
+
     try {
       setIsPending(true);
       if (localImageFile) {
@@ -84,6 +85,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       } else if (imageUri) {
         newLink.image_uri = imageUri;
       }
+
       if (link && typeof link.id !== "undefined") {
         newLink.id = link.id;
         await updateLink(newLink);
@@ -92,6 +94,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
         await addLink(newLink);
         addToast("Link created", { appearance: "success" });
       }
+
       setIsPending(false);
       if (onSubmitResolve) {
         onSubmitResolve();
@@ -104,13 +107,22 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "uri") {
-      setUri(value);
-    } else if (name === "title") {
-      setTitle(value);
-    } else if (name === "description") {
-      setDescription(value);
+
+    switch (name) {
+      case "title":
+        setTitle(value);
+        break;
+      case "description":
+        setDescription(value);
+        break;
+      case "uri":
+        setUri(value);
+        break;
+      default:
+        console.log("Unknow on change:", name, value);
+        break;
     }
+
     setIsDirty(true);
   };
 
@@ -118,10 +130,12 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     required: { value: true, message: "Uri is required" },
     minLength: { value: 3, message: "Uri cannot be less than 3 character" },
   };
+
   const titleValidator = {
     required: { value: true, message: "Title is required" },
     minLength: { value: 3, message: "Title cannot be less than 3 character" },
   };
+
   const descriptionValidator = {
     required: { value: true, message: "Description is required" },
     minLength: {
@@ -183,7 +197,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
           </div>
 
           <div className="flex flex-col">
-            <label className="label">Image </label>
+            <label className="label">Image</label>
             <UploadImage
               initialImage={
                 imageUri ? `https://ipfs.io/ipfs/${imageUri}` : null
