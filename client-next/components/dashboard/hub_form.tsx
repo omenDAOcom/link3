@@ -94,7 +94,7 @@ const HubForm = () => {
 
       <div className="flex flex-col">
         <label className="label">Image </label>
-        <UploadImage setImage={setTempImg} />
+        <UploadImage setImage={setTempImg} initialImage={null} />
       </div>
 
       <button

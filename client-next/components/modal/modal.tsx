@@ -44,7 +44,7 @@ const Modal = ({ isOpen, onClose, children, contentClass }: ModalProps) => {
             />
             <div className="relative z-30 ">
               <IconClose
-                className="absolute top-4 right-4 w-8 text-paragraph hover:text-primary clickable "
+                className="absolute top-4 right-4 w-8 text-paragraph hover:text-primary clickable"
                 onClick={onRequestClose}
               />
               <div

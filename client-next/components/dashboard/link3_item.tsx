@@ -32,8 +32,7 @@ const Link3Item = ({ link, onEdit }: Props) => {
                   : "https://picsum.photos/200"
               }
               alt={title}
-              className="object-cover object-center rounded-full"
-              placeholder="blur"
+              className="object-cover object-center rounded-full min-w-full min-h-full"
             />
           </div>
           <div>

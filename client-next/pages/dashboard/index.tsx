@@ -7,6 +7,7 @@ import LayoutDashboard from "../../components/layout_dashboard";
 
 const Dashboard: NextPage = () => {
   const { accountId } = useNear();
+  
   return (
     <LayoutDashboard>
       <Head>
@@ -20,7 +21,7 @@ const Dashboard: NextPage = () => {
 
       <main className=" flex justify-evenly space-x-10">
         {accountId && <Hub accountId={accountId} />}
-        <LinkForm />
+        <LinkForm cta="Create" />
       </main>
 
       <footer className=""></footer>

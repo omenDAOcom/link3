@@ -1,14 +1,21 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface Props {
+  initialImage: string | null;
   setImage: (image: File) => void;
 }
 
-const UploadFile = ({ setImage }: Props) => {
+const UploadFile = ({ initialImage, setImage }: Props) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const inputImage = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (initialImage) {
+      setImageUrl(initialImage);
+    }
+  }, [initialImage]);
+  
   const dragOverHandler = (event: any) => event.preventDefault();
 
   const dropHandler = (event: any) => {
