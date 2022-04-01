@@ -31,15 +31,16 @@ const Link3 = ({ links }: Props) => {
   const confirmDelete = async (link: Link) => {
     const { title, id } = link;
 
-    console.log(`Deleting ${title} with id: ${id}`);
     if (typeof id !== "undefined") {
       const confirmed = window.confirm(
         `Are you sure you want to delete ${title}?`
       );
+
       if (confirmed) {
         await deleteLink(id);
         addToast("Link deleted", { appearance: "success" });
       }
+      
     }
   };
 

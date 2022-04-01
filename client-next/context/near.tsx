@@ -194,7 +194,6 @@ export function NearProvider({ children }: Props) {
 
   async function deleteLink(id: string) {
     try {
-      console.log("CONTRACT CALL deleteLink", id);
       const result = await selector.contract.signAndSendTransaction({
         actions: [
           {
@@ -207,12 +206,16 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
+
+      // Convert base64 response to string
       const data = Buffer.from(result.status.SuccessValue, "base64").toString(
         "binary"
       );
       setHub(JSON.parse(data));
+
       return result;
     } catch (error) {
+      console.log("deleteLink error", error);
       throw error;
     }
   }
