@@ -207,9 +207,10 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
-      console.log("result", result);
-      console.log("result data", result.data);
-      getHub(result.transaction.signer_id as string);
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
       return result;
     } catch (error) {
       throw error;
