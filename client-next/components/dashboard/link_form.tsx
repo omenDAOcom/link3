@@ -6,9 +6,13 @@ import { useNear } from "../../context/near"
 // Components
 import UploadImage from "../utils/upload_image";
 import LabelAndErrors from "../utils/label_error";
+import { useEffect } from "react";
 
+interface Props {
+  link?: Link
+}
 
-const LinkForm = () => {
+const LinkForm = ({ link }: Props) => {
   const { addLink, isLoggedIn, accountId } = useNear()
   const { register, formState: { errors }, handleSubmit } = useForm()
 
@@ -18,8 +22,16 @@ const LinkForm = () => {
   const [image_uri, setImageUri] = useState<string | null>(null)
   const [tempImg, setTempImg] = useState<File | null>(null)
 
+  useEffect(() => {
+    if (link) {
+      setTitle(link.title)
+      setDescription(link.description)
+      setUri(link.uri)
+      setImageUri(link.image_uri)
+    }
+  }, [link])
 
-  const uploadToServer = async (image: File): Promise<string | null> => {
+  const uploadImage = async (image: File): Promise<string | null> => {
     try {
       const body = new FormData();
       body.append("file", image);
@@ -32,7 +44,7 @@ const LinkForm = () => {
       const response = await axios.post('/api/file', body, config);
       return response.data
     } catch (error) {
-      console.error("uploadToServer", error)
+      console.error("uploadImage", error)
       return null
     }
   };
@@ -41,7 +53,7 @@ const LinkForm = () => {
     const { title, description, uri } = data
     const link: Link = { title, description, uri }
     if (tempImg) {
-      const cid = await uploadToServer(tempImg)
+      const cid = await uploadImage(tempImg)
       console.log("cid", cid)
       link.image_uri = cid
     }
@@ -75,6 +87,7 @@ const LinkForm = () => {
           type="link"
           placeholder="https://www.google.com"
           {...register('uri', uriValidator)}
+          value={uri}
           onChange={(event) => setUri(event.target.value)}
         />
       </div>
@@ -87,6 +100,7 @@ const LinkForm = () => {
           type="text"
           placeholder="Google"
           {...register('title', titleValidator)}
+          value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
       </div>
@@ -97,8 +111,9 @@ const LinkForm = () => {
           className='input input-text'
           id="description"
           type="text"
-          placeholder="Search Engine"
+          placeholder="Write a short description"
           {...register('description', descriptionValidator)}
+          value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
       </div>
