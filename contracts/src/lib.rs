@@ -127,7 +127,7 @@ impl MainHub {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::{log, testing_env, VMContext};
+    use near_sdk::{testing_env, VMContext};
     use near_sdk::{Balance, MockedBlockchain};
 
     fn get_context(input: Vec<u8>, is_view: bool, deposit: Option<Balance>) -> VMContext {
@@ -237,7 +237,6 @@ mod tests {
 
         let mut main = MainHub::default();
         main.create("Hello".to_string(), "World".to_string(), None, Some(true));
-        // When
         main.add_link(
             "uri".to_string(),
             "title".to_string(),
@@ -245,8 +244,10 @@ mod tests {
             Some("image_uri".to_string()),
             Some(true),
         );
+        // When
+        let id = 1;
         main.update_link(
-            0,
+            id,
             "uri".to_string(),
             "title".to_string(),
             "description".to_string(),
@@ -279,8 +280,9 @@ mod tests {
             Some(false),
         );
 
+        let id = 1;
         // When
-        main.delete_link(0);
+        main.delete_link(id);
         // Then
         let link3 = main.get("alice.testnet".to_string());
         assert!(

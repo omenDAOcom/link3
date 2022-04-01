@@ -111,7 +111,7 @@ impl Link3 {
         let id = u64::try_from(if last.is_some() {
             last.unwrap().id() + 1
         } else {
-            0
+            1
         })
         .unwrap();
         let item = Item::new(id, uri, title, description, image_uri, is_published);
@@ -628,28 +628,6 @@ mod tests {
         );
     }
 
-    #[test]
-    #[should_panic(expected = "Link does not exist")]
-    fn delete_item_with_wrong_id_panics() {
-        // Given
-        let context = get_context(vec![], false, Some(1));
-        testing_env!(context);
-        let mut contract = generate_contract(Some(false));
-
-        contract.create_link(
-            "some_uri".to_string(),
-            "some_title".to_string(),
-            "some_description".to_string(),
-            Some("image".to_string()),
-            false,
-        );
-
-        // When
-        contract.delete_link(2);
-        // Then
-        // - Should panic
-    }
-
     // // Comment for now, until we sure that we can't delete published items
     // #[test]
     // #[should_panic(expected = "Cannot delete published link")]
@@ -688,11 +666,11 @@ mod tests {
             Some("image".to_string()),
             false,
         );
-
+        let id = 1;
         // When
         let alt_context = get_alternative_context(vec![], false, Some(1));
         testing_env!(alt_context);
-        contract.delete_link(0);
+        contract.delete_link(id);
         // Then
         // - Should panic
     }
@@ -712,8 +690,9 @@ mod tests {
             false,
         );
 
+        let id = 1;
         // When
-        contract.delete_link(0);
+        contract.delete_link(id);
         // Then
         assert!(contract.list_all().is_empty(), "Should've deleted the item");
     }
@@ -743,7 +722,8 @@ mod tests {
 
         let list_lenght = contract.list_all().len();
         // When
-        contract.delete_link(0);
+        let id = 1;
+        contract.delete_link(id);
         // Then
         assert_eq!(
             list_lenght - 1,
@@ -760,8 +740,9 @@ mod tests {
         testing_env!(context);
         let mut contract = generate_contract(Some(false));
 
+        let id = 1;
         // When
-        contract.get_index(0);
+        contract.get_index(id);
         // Then
         // - Should panic
     }
@@ -782,7 +763,8 @@ mod tests {
         );
 
         // When
-        let index = contract.get_index(0);
+        let id = 1;
+        let index = contract.get_index(id);
         // Then
         assert_eq!(index, 0, "Should've returned the index of the item");
     }
