@@ -32,7 +32,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUri, setImageUri] = useState<string>("");
-  const [tempImg, setTempImg] = useState<File | null>(null);
+  const [localImageFile, setLocalImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (link) {
@@ -42,16 +42,15 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       if (link.image_uri) {
         setImageUri(link.image_uri);
       }
-      setIsReady(true);
     }
     setIsReady(true);
   }, [link]);
 
   useEffect(() => {
-    if (tempImg) {
+    if (localImageFile) {
       setIsDirty(true);
     }
-  }, [tempImg]);
+  }, [localImageFile]);
 
   const uploadImage = async (image: File): Promise<string | null> => {
     try {
@@ -77,14 +76,16 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const onSubmit = handleSubmit(async (data) => {
     const { title, description, uri } = data;
     const newLink: Link = { title, description, uri };
+
     try {
       setIsPending(true);
-      if (tempImg) {
-        const cid = await uploadImage(tempImg);
+      if (localImageFile) {
+        const cid = await uploadImage(localImageFile);
         newLink.image_uri = cid;
       } else if (imageUri) {
         newLink.image_uri = imageUri;
       }
+
       if (link && typeof link.id !== "undefined") {
         newLink.id = link.id;
         await updateLink(newLink);
@@ -93,6 +94,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
         await addLink(newLink);
         addToast("Link created", { appearance: "success" });
       }
+
       setIsPending(false);
       if (onSubmitResolve) {
         onSubmitResolve();
@@ -105,13 +107,22 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "uri") {
-      setUri(value);
-    } else if (name === "title") {
-      setTitle(value);
-    } else if (name === "description") {
-      setDescription(value);
+
+    switch (name) {
+      case "title":
+        setTitle(value);
+        break;
+      case "description":
+        setDescription(value);
+        break;
+      case "uri":
+        setUri(value);
+        break;
+      default:
+        console.log("Unknow on change:", name, value);
+        break;
     }
+
     setIsDirty(true);
   };
 
@@ -119,10 +130,12 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     required: { value: true, message: "Uri is required" },
     minLength: { value: 3, message: "Uri cannot be less than 3 character" },
   };
+
   const titleValidator = {
     required: { value: true, message: "Title is required" },
     minLength: { value: 3, message: "Title cannot be less than 3 character" },
   };
+
   const descriptionValidator = {
     required: { value: true, message: "Description is required" },
     minLength: {
@@ -184,12 +197,12 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
           </div>
 
           <div className="flex flex-col">
-            <label className="label">Image </label>
+            <label className="label">Image</label>
             <UploadImage
               initialImage={
                 imageUri ? `https://ipfs.io/ipfs/${imageUri}` : null
               }
-              setImage={setTempImg}
+              setImage={setLocalImageFile}
             />
           </div>
 
