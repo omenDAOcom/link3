@@ -133,14 +133,7 @@ impl Link3 {
         if env::signer_account_id() != self.owner_account_id {
             env::panic(b"Only the owner can update a link");
         }
-        let index = self
-            .links
-            .iter()
-            .position(|item| item.id() == id)
-            .unwrap_or_else(|| {
-                env::panic(b"Link does not exist");
-            });
-        log!("Updating link with index: {}", id);
+        let index = self.get_index(id);
 
         let item = Item::new(id, uri, title, description, image_uri, is_published);
 
@@ -155,14 +148,7 @@ impl Link3 {
             panic!("Only the owner can delete a link");
         }
 
-        let index = self
-            .links
-            .iter()
-            .position(|item| item.id() == id)
-            .unwrap_or_else(|| {
-                panic!("Link does not exist");
-            });
-        log!("Deleting link with index: {}", id);
+        let index = self.get_index(id);
 
         // // Comment for now, until we sure that we can't delete published items
         // if self.links[index].is_published() {
@@ -171,6 +157,19 @@ impl Link3 {
 
         // Remove item
         self.links.remove(index);
+    }
+
+    /*******************
+     * PRIVATE METHODS *
+     *******************/
+
+    fn get_index(&mut self, id: u64) -> usize {
+        self.links
+            .iter()
+            .position(|item| item.id() == id)
+            .unwrap_or_else(|| {
+                panic!("Link does not exist");
+            })
     }
 }
 
@@ -751,5 +750,40 @@ mod tests {
             contract.list_all().len(),
             "Should've deleted the item"
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "Link does not exist")]
+    fn get_index_with_no_items() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        // When
+        contract.get_index(0);
+        // Then
+        // - Should panic
+    }
+
+    #[test]
+    fn get_index_with_one_item() {
+        // Given
+        let context = get_context(vec![], false, Some(1));
+        testing_env!(context);
+        let mut contract = generate_contract(Some(false));
+
+        contract.create_link(
+            "some_uri".to_string(),
+            "some_title".to_string(),
+            "some_description".to_string(),
+            Some("image".to_string()),
+            false,
+        );
+
+        // When
+        let index = contract.get_index(0);
+        // Then
+        assert_eq!(index, 0, "Should've returned the index of the item");
     }
 }
