@@ -1,29 +1,35 @@
 import Head from "next/head";
+import { useCallback, useEffect } from "react";
 import Router from "next/router";
-import { useMemo } from "react";
-import HubForm from "../../components/dashboard/hub_form";
-import Layout from "../../components/layout";
-import LayoutDashboard from "../../components/layout_dashboard";
 import { useNear } from "../../context/near";
+import HubForm from "../../components/dashboard/hub_form";
+import LayoutDashboard from "../../components/layout_dashboard";
+import { NextPage } from "next/types";
 
-const CreateLink3 = () => {
-
-  const { getHub, hub, accountId, isLoggedIn } = useNear();
+const CreateLink3: NextPage = () => {
+  const { getHub, hub, accountId } = useNear();
   if (hub && hub.owner_account_id === accountId) {
-    Router.push('/dashboard')
+    Router.push("/dashboard");
   }
-  useMemo(async () => {
+  const fetchGetHub = useCallback(async () => {
     if (accountId) {
       await getHub(accountId);
-      return hub
     }
-  }, [accountId, isLoggedIn])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountId]);
+
+  useEffect(() => {
+    fetchGetHub();
+  }, [fetchGetHub]);
 
   return (
     <LayoutDashboard>
       <Head>
         <title>Link3</title>
-        <meta name="description" content="A linktree alternative built on NEAR" />
+        <meta
+          name="description"
+          content="A linktree alternative built on NEAR"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -31,11 +37,9 @@ const CreateLink3 = () => {
         <HubForm />
       </main>
 
-      <footer className="">
-
-      </footer>
+      <footer className=""></footer>
     </LayoutDashboard>
-  )
+  );
 };
 
 export default CreateLink3;

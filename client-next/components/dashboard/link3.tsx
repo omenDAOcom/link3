@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "../../near/types";
 import ModalEditLink from "../modal/modal_edit_link";
 import Link3Item from "./link3_item";
+
 interface Props {
   links: Array<Link>;
 }
@@ -14,7 +15,7 @@ const Link3 = ({ links }: Props) => {
     setIsOpen(true);
     setLink(link);
   };
-  
+
   const closeModal = () => {
     setIsOpen(false);
     setLink(null);
@@ -23,14 +24,15 @@ const Link3 = ({ links }: Props) => {
   return (
     <>
       <div className="space-y-4 w-full">
-        {links.map((link: Link) => <Link3Item key={link.id} link={link} onEdit={openModal} />)}
+        {links.map((link: Link) => (
+          <Link3Item key={link.id} link={link} onEdit={openModal} />
+        ))}
       </div>
-      {
-        (isOpen && link) &&
+      {isOpen && link && (
         <ModalEditLink isOpen={isOpen} onClose={closeModal} link={link} />
-      }
+      )}
     </>
-  )
-}
+  );
+};
 
 export default Link3;
