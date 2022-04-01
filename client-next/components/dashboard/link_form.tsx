@@ -32,7 +32,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUri, setImageUri] = useState<string>("");
-  const [tempImg, setTempImg] = useState<File | null>(null);
+  const [localImageFile, setLocalImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (link) {
@@ -42,16 +42,15 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
       if (link.image_uri) {
         setImageUri(link.image_uri);
       }
-      setIsReady(true);
     }
     setIsReady(true);
   }, [link]);
 
   useEffect(() => {
-    if (tempImg) {
+    if (localImageFile) {
       setIsDirty(true);
     }
-  }, [tempImg]);
+  }, [localImageFile]);
 
   const uploadImage = async (image: File): Promise<string | null> => {
     try {
@@ -79,8 +78,8 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
     const newLink: Link = { title, description, uri };
     try {
       setIsPending(true);
-      if (tempImg) {
-        const cid = await uploadImage(tempImg);
+      if (localImageFile) {
+        const cid = await uploadImage(localImageFile);
         newLink.image_uri = cid;
       } else if (imageUri) {
         newLink.image_uri = imageUri;
@@ -189,7 +188,7 @@ const LinkForm = ({ cta, link, onSubmitResolve }: Props) => {
               initialImage={
                 imageUri ? `https://ipfs.io/ipfs/${imageUri}` : null
               }
-              setImage={setTempImg}
+              setImage={setLocalImageFile}
             />
           </div>
 
