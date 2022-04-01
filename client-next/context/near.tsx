@@ -208,6 +208,7 @@ export function NearProvider({ children }: Props) {
         ],
       });
       console.log("result", result);
+      console.log("result data", result.data);
       getHub(result.transaction.signer_id as string);
       return result;
     } catch (error) {

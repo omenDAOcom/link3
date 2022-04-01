@@ -2311,7 +2311,7 @@ near-api-js@0.44.2, near-api-js@^0.44.2:
     text-encoding-utf-8 "^1.0.2"
     tweetnacl "^1.0.1"
 
-near-wallet-selector@^2.0.0:
+near-wallet-selector@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/near-wallet-selector/-/near-wallet-selector-2.1.0.tgz#0d94e90ca9122845ca3b031457d7778e82d85bf9"
   integrity sha512-tn/btekRHYenNyKpAGpSxCIQcfG+TKroA0WjgULrfkw3hk7nAlEbryRQ2gATYaPaKRTHAdbBBzhA7wsFsoDVSg==
