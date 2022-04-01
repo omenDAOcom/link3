@@ -102,7 +102,7 @@ impl MainHub {
         self.hub.insert(&env::signer_account_id(), &link3);
     }
 
-    pub fn delete_link(&mut self, id: u64) -> &MainHub {
+    pub fn delete_link(&mut self, id: u64) -> Link3 {
         let mut link3: Link3 = Self::get(&self, env::signer_account_id())
             .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
@@ -113,7 +113,10 @@ impl MainHub {
         self.hub.insert(&env::signer_account_id(), &link3);
 
         // Return self
-        return self;
+        return self
+            .hub
+            .get(&env::signer_account_id())
+            .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
     }
 }
 
