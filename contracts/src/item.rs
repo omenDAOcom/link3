@@ -66,9 +66,10 @@ impl Item {
    * CALL METHODS *
    ****************/
   pub fn set_published(&mut self, is_published: bool) {
-    if env::current_account_id() != env::predecessor_account_id() {
-      env::panic(b"Only the owner can change the is_published state");
-    }
+    // Commented out until we truly descentralize
+    // if env::current_account_id() != env::predecessor_account_id() {
+    //   env::panic(b"Only the owner can change the is_published state");
+    // }
 
     self.is_published = is_published;
   }

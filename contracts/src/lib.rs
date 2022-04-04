@@ -118,6 +118,43 @@ impl MainHub {
       .get(&env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
   }
+
+  pub fn update_link_item(
+    &mut self,
+    id: u64,
+    uri: String,
+    title: String,
+    description: String,
+    image_uri: Option<String>,
+    is_published: Option<bool>,
+  ) {
+    let mut link3: Link3 = Self::get(&self, env::signer_account_id())
+      .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+
+    // Update item
+    link3.update_link(
+      id,
+      uri,
+      title,
+      description,
+      image_uri,
+      is_published.unwrap_or(true),
+    );
+
+    // Save to hub state
+    self.hub.insert(&env::signer_account_id(), &link3);
+  }
+
+  pub fn update_link_item_status(&mut self, id: u64, is_published: bool) {
+    let mut link3: Link3 = Self::get(&self, env::signer_account_id())
+      .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+
+    // Update item
+    link3.update_link_status(id, is_published);
+
+    // Save to hub state
+    self.hub.insert(&env::signer_account_id(), &link3);
+  }
 }
 
 /*********
@@ -284,6 +321,32 @@ mod tests {
     assert!(
       link3.unwrap().list_all().is_empty(),
       "Link should be deleted"
+    );
+  }
+
+  #[test]
+  fn update_link_item_status_saves_link_to_state() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+
+    let mut main = MainHub::default();
+    main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+    main.add_link(
+      "uri".to_string(),
+      "title".to_string(),
+      "description".to_string(),
+      Some("image_uri".to_string()),
+      Some(false),
+    );
+    // When
+    let id = 1;
+    main.update_link_item_status(id, true);
+    // Then
+    let link3 = main.get("alice.testnet".to_string());
+    assert!(
+      link3.unwrap().list_all()[0].is_published(),
+      "Link should be updated"
     );
   }
 }

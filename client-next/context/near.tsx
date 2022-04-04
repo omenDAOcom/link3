@@ -154,7 +154,7 @@ export function NearProvider({ children }: Props) {
           {
             type: "FunctionCall",
             params: {
-              methodName: "update_link",
+              methodName: "update_link_item",
               args: { ...props },
               gas: BOATLOAD_OF_GAS,
             },

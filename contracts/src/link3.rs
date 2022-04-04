@@ -159,6 +159,18 @@ impl Link3 {
     self.links.remove(index);
   }
 
+  pub fn update_link_status(&mut self, id: u64, is_published: bool) -> &Item {
+    if env::signer_account_id() != self.owner_account_id {
+      panic!("Only the owner can update a link");
+    }
+
+    let index = self.get_index(id);
+
+    self.links[index].set_published(is_published);
+
+    &self.links[index]
+  }
+
   /*******************
    * PRIVATE METHODS *
    *******************/
@@ -764,5 +776,55 @@ mod tests {
     let index = contract.get_index(id);
     // Then
     assert_eq!(index, 0, "Should've returned the index of the item");
+  }
+
+  #[test]
+  #[should_panic(expected = "Only the owner can update a link")]
+  fn update_link_published_state_not_own() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    contract.create_link(
+      "some_uri".to_string(),
+      "some_title".to_string(),
+      "some_description".to_string(),
+      Some("image".to_string()),
+      false,
+    );
+    let id = 1;
+    // When
+    let alt_context = get_alternative_context(vec![], false, Some(1));
+    testing_env!(alt_context);
+    contract.update_link_status(id, true);
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn update_link_published_state() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    contract.create_link(
+      "some_uri".to_string(),
+      "some_title".to_string(),
+      "some_description".to_string(),
+      Some("image".to_string()),
+      false,
+    );
+
+    // When
+    let id = 1;
+    contract.update_link_status(id, true);
+    let index = contract.get_index(id);
+    // Then
+    assert!(
+      contract.links[index].is_published(),
+      "Should've updated the published state"
+    );
   }
 }
