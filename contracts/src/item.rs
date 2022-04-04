@@ -58,7 +58,7 @@ impl Item {
     // Changing here so there is no need to change the ItemInfo's implementation
     // let has_access = !self.is_premium || Item::has_access(self);
 
-    let has_access = true;
+    let has_access = self.is_published ;
     ItemInfo::map(self, has_access)
   }
 
