@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNear } from "../../context/near";
 import { Link } from "../../near/types";
 import { NearLogo } from "../icons/near";
 
