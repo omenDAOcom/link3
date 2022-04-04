@@ -1,6 +1,6 @@
 // To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, log, PanicOnDefault};
+use near_sdk::{log, PanicOnDefault};
 use serde::Serialize;
 
 // #[near_bindgen]
@@ -11,7 +11,6 @@ pub struct Item {
   title: String,
   description: String,
   image_uri: Option<String>,
-  is_published: bool,
 }
 
 // Core Logic/Implementation
@@ -24,7 +23,6 @@ impl Item {
     title: String,
     description: String,
     image_uri: Option<String>,
-    is_published: bool,
   ) -> Self {
     log!("Creating new item with title {},", &title);
 
@@ -34,7 +32,6 @@ impl Item {
       title,
       description,
       image_uri,
-      is_published,
     }
   }
 
@@ -45,15 +42,7 @@ impl Item {
     self.id
   }
 
-  pub fn is_published(&self) -> bool {
-    self.is_published
-  }
-
   pub fn read(&self) -> ItemInfo {
-    if !self.is_published {
-      env::panic(b"Can't read an item that is not public.");
-    }
-
     // Not verifing access for v1, if it is public it has access
     // Changing here so there is no need to change the ItemInfo's implementation
     // let has_access = !self.is_premium || Item::has_access(self);
@@ -65,13 +54,6 @@ impl Item {
   /****************
    * CALL METHODS *
    ****************/
-  pub fn set_published(&mut self, is_published: bool) {
-    if env::current_account_id() != env::predecessor_account_id() {
-      env::panic(b"Only the owner can change the is_published state");
-    }
-
-    self.is_published = is_published;
-  }
 
   /************
    * INTERNAL *
@@ -139,14 +121,13 @@ mod tests {
     }
   }
 
-  fn generate_item(id: u64, is_published: bool) -> Item {
+  fn generate_item(id: u64) -> Item {
     Item::new(
       id,
       "https://google.com".to_string(),
       "A random title".to_string(),
       "The item description".to_string(),
       Some("https://s3.envato.com/files/244088191/Google%20Logo.1.jpg".to_string()),
-      is_published,
     )
   }
 
@@ -174,7 +155,6 @@ mod tests {
       "A random title".to_string(),
       "The item description".to_string(),
       Some("https://s3.envato.com/files/244088191/Google%20Logo.1.jpg".to_string()),
-      true,
     );
     // Then
     assert_eq!(123, contract.id);
@@ -185,19 +165,6 @@ mod tests {
       Some("https://s3.envato.com/files/244088191/Google%20Logo.1.jpg".to_string()),
       contract.image_uri
     );
-    assert_eq!(true, contract.is_published);
-  }
-
-  #[test]
-  fn is_published_returns_correct_state() {
-    // Given
-    let context = get_context(vec![], false);
-    testing_env!(context);
-    let item = generate_item(123, true);
-    // When
-    let result = item.is_published();
-    // Then
-    assert_eq!(result, true);
   }
 
   #[test]
@@ -205,7 +172,7 @@ mod tests {
     // Given
     let context = get_context(vec![], false);
     testing_env!(context);
-    let item = generate_item(123, true);
+    let item = generate_item(123);
     // When
     let item_info = ItemInfo::map(&item, true);
     // Then

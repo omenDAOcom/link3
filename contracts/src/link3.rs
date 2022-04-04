@@ -69,11 +69,7 @@ impl Link3 {
     }
 
     let links_ref = &self.links;
-    links_ref
-      .iter()
-      .filter(|item| item.is_published())
-      .map(|item| item.read())
-      .collect()
+    links_ref.iter().map(|item| item.read()).collect()
   }
 
   /****************
@@ -102,7 +98,6 @@ impl Link3 {
     title: String,
     description: String,
     image_uri: Option<String>,
-    is_published: bool,
   ) -> &Item {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can create a link");
@@ -114,7 +109,7 @@ impl Link3 {
       1
     })
     .unwrap();
-    let item = Item::new(id, uri, title, description, image_uri, is_published);
+    let item = Item::new(id, uri, title, description, image_uri);
 
     self.links.push(item);
     // Return created item
@@ -128,14 +123,13 @@ impl Link3 {
     title: String,
     description: String,
     image_uri: Option<String>,
-    is_published: bool,
   ) -> &Item {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can update a link");
     }
     let index = self.get_index(id);
 
-    let item = Item::new(id, uri, title, description, image_uri, is_published);
+    let item = Item::new(id, uri, title, description, image_uri);
 
     // Update item
     self.links[index] = item;
@@ -374,7 +368,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     // Then
@@ -397,48 +390,9 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
     // Then
     // - Should panic
-  }
-
-  #[test]
-  fn list_only_returns_published_links() {
-    // Given
-    let context = get_context(vec![], false, Some(1));
-    testing_env!(context);
-    let mut contract = generate_contract(Some(true));
-
-    // When
-    contract.create_link(
-      "some_uri".to_string(),
-      "some_title".to_string(),
-      "some_description".to_string(),
-      Some("image".to_string()),
-      true,
-    );
-
-    contract.create_link(
-      "another_some_uri".to_string(),
-      "another_some_title".to_string(),
-      "another_some_description".to_string(),
-      Some("another_image".to_string()),
-      true,
-    );
-
-    contract.create_link(
-      "pvt_some_uri".to_string(),
-      "pvt_some_title".to_string(),
-      "pvt_some_description".to_string(),
-      Some("pvt_another_image".to_string()),
-      false,
-    );
-
-    let result = contract.list();
-
-    // Then
-    assert_eq!(result.len(), 2, "Should've returned 2 elements");
   }
 
   #[test]
@@ -467,7 +421,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     contract.create_link(
@@ -475,7 +428,6 @@ mod tests {
       "another_some_title".to_string(),
       "another_some_description".to_string(),
       Some("another_image".to_string()),
-      true,
     );
 
     contract.create_link(
@@ -483,7 +435,6 @@ mod tests {
       "pvt_some_title".to_string(),
       "pvt_some_description".to_string(),
       Some("pvt_another_image".to_string()),
-      false,
     );
 
     let result = contract.list_all();
@@ -505,7 +456,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     contract.create_link(
@@ -513,7 +463,6 @@ mod tests {
       "another_some_title".to_string(),
       "another_some_description".to_string(),
       Some("another_image".to_string()),
-      true,
     );
 
     contract.create_link(
@@ -521,7 +470,6 @@ mod tests {
       "pvt_some_title".to_string(),
       "pvt_some_description".to_string(),
       Some("pvt_another_image".to_string()),
-      false,
     );
 
     // When
@@ -545,7 +493,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     // When
@@ -557,7 +504,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
     // Then
     // - Should panic
@@ -576,7 +522,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     // When
@@ -586,7 +531,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
     // Then
     // - Should panic
@@ -604,18 +548,17 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
 
     // When
+    let id = 1;
     testing_env!(context);
     let item = contract.update_link(
-      0,
+      id,
       "some_uri".to_string(),
       "another_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      true,
     );
     // Then
     assert_eq!(
@@ -661,7 +604,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      false,
     );
     let id = 1;
     // When
@@ -684,7 +626,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      false,
     );
 
     let id = 1;
@@ -706,7 +647,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      false,
     );
 
     contract.create_link(
@@ -714,7 +654,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      false,
     );
 
     let list_lenght = contract.list_all().len();
@@ -756,7 +695,6 @@ mod tests {
       "some_title".to_string(),
       "some_description".to_string(),
       Some("image".to_string()),
-      false,
     );
 
     // When

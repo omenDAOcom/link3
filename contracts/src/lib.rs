@@ -58,7 +58,6 @@ impl MainHub {
     title: String,
     description: String,
     image_uri: Option<String>,
-    is_published: Option<bool>,
   ) {
     let mut link3: Link3 = Self::get(&self, env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
@@ -69,7 +68,6 @@ impl MainHub {
       title,
       description,
       image_uri,
-      is_published.unwrap_or(true),
     );
 
     // Save to hub state
@@ -83,7 +81,6 @@ impl MainHub {
     title: String,
     description: String,
     image_uri: Option<String>,
-    is_published: Option<bool>,
   ) {
     let mut link3: Link3 = Self::get(&self, env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
@@ -95,7 +92,6 @@ impl MainHub {
       title,
       description,
       image_uri,
-      is_published.unwrap_or(true),
     );
 
     // Save to hub state
@@ -218,7 +214,6 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       Some("image_uri".to_string()),
-      Some(true),
     );
     // Then
     let link3 = main.get("alice.testnet".to_string());
@@ -238,7 +233,6 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       Some("image_uri".to_string()),
-      Some(true),
     );
     // When
     let id = 1;
@@ -248,7 +242,6 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       Some("image_uri".to_string()),
-      Some(true),
     );
     // Then
     let link3 = main.get("alice.testnet".to_string());
@@ -273,7 +266,6 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       Some("image_uri".to_string()),
-      Some(false),
     );
 
     let id = 1;
