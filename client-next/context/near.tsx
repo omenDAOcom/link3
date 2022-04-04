@@ -22,6 +22,7 @@ type nearContextType = {
   createHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
   deleteLink: (id: string) => Promise<any>;
+  updateLinkStatus: (id: string, is_published: boolean) => Promise<any>;
 };
 
 const nearContextDefaultValues: nearContextType = {
@@ -37,6 +38,7 @@ const nearContextDefaultValues: nearContextType = {
   createHub: () => Promise.resolve(),
   updateLink: () => Promise.resolve(),
   deleteLink: () => Promise.resolve(),
+  updateLinkStatus: () => Promise.resolve(),
 };
 
 const NearContext = createContext<nearContextType>(nearContextDefaultValues);
@@ -220,6 +222,29 @@ export function NearProvider({ children }: Props) {
     }
   }
 
+  async function updateLinkStatus(id: string, is_published: boolean) {
+    try {
+      console.log("CONTRACT CALL updateLinkStatus", id, is_published);
+      const result = await selector.contract.signAndSendTransaction({
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "update_link_item_status",
+              args: { id, is_published },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
+      });
+      console.log("result", result);
+      getHub(result.transaction.signer_id as string);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   const value = {
     hub,
     isReady,
@@ -233,6 +258,7 @@ export function NearProvider({ children }: Props) {
     createHub,
     updateLink,
     deleteLink,
+    updateLinkStatus,
   };
 
   return (

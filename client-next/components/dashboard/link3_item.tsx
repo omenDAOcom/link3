@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNear } from "../../context/near";
 import { Link } from "../../near/types";
 import { NearLogo } from "../icons/near";
 
@@ -11,11 +12,18 @@ interface Props {
 
 const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
   const { title, image_uri, uri, description } = link;
+  const { updateLinkStatus } = useNear();
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleEdit = () => {
     onEdit(link);
+  };
+
+  const handleChangeState = () => {
+    if (link.id) {
+      updateLinkStatus(link.id, true);
+    }
   };
 
   const handleDelete = async () => {
@@ -45,6 +53,12 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
           className="clickable text-xs font-medium tracking-wide hover:text-primary"
         >
           edit
+        </div>
+        <div
+          onClick={handleChangeState}
+          className="clickable text-xs font-medium tracking-wide hover:text-primary"
+        >
+          changeState
         </div>
         <div
           onClick={handleDelete}
