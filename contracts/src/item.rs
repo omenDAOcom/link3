@@ -88,6 +88,7 @@ pub struct ItemInfo {
   pub title: String,
   pub description: String,
   pub image: Option<String>,
+  pub is_published: bool,
 }
 
 impl ItemInfo {
@@ -106,6 +107,7 @@ impl ItemInfo {
       } else {
         None // from.image_preview_uri.clone()
       },
+      is_published: from.is_published,
     }
   }
 }
