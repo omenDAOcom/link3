@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Link3 = ({ links }: Props) => {
-  const { deleteLink } = useNear();
+  const { deleteLink, updateLinkStatus } = useNear();
   const { addToast } = useToasts();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -40,8 +40,12 @@ const Link3 = ({ links }: Props) => {
         await deleteLink(id);
         addToast("Link deleted", { appearance: "success" });
       }
-      
     }
+  };
+
+  const changeState = async (id: string, is_published: boolean) => {
+    await updateLinkStatus(id, is_published);
+    addToast("Link state updated", { appearance: "success" });
   };
 
   return (
@@ -53,6 +57,7 @@ const Link3 = ({ links }: Props) => {
             link={link}
             onEdit={openModal}
             onDelete={confirmDelete}
+            onChangeState={changeState}
           />
         ))}
       </div>

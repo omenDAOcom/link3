@@ -7,30 +7,39 @@ interface Props {
   link: Link;
   onEdit: (link: Link) => void;
   onDelete: (link: Link) => void;
+  onChangeState: (id: string, is_published: boolean) => void;
   className?: string;
 }
 
-const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
-  const { title, image_uri, uri, description } = link;
-  const { updateLinkStatus } = useNear();
+const Link3Item = ({
+  link,
+  onEdit,
+  onDelete,
+  onChangeState,
+  className,
+}: Props) => {
+  const { title, image_uri, uri, description, is_published } = link;
 
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const handleEdit = () => {
     onEdit(link);
   };
 
-  const handleChangeState = () => {
+  const handleChangeState = async () => {
     if (link.id) {
-      updateLinkStatus(link.id, true);
+      setIsPending(true);
+      // await has effect!
+      await onChangeState(link.id, !is_published);
+      setIsPending(false);
     }
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    setIsPending(true);
     // await has effect!
     await onDelete(link);
-    setIsDeleting(false);
+    setIsPending(false);
     console.log("Deleted link", link);
   };
 
@@ -38,12 +47,10 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
     <div
       className={`${className} w-full relative p-4 rounded border border-accent w-full overflow-hidden`}
     >
-      {isDeleting && (
+      {isPending && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/70 z-10">
           <NearLogo
-            className={`w-8 text-on-primary ${
-              isDeleting ? "animate-spin" : ""
-            }`}
+            className={`w-8 text-on-primary ${isPending ? "animate-spin" : ""}`}
           />
         </div>
       )}
@@ -62,9 +69,7 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
         </div>
         <div
           onClick={handleDelete}
-          className={`
-          ${isDeleting ? "opacity-50" : "opacity-100"}
-          clickable text-xs font-medium tracking-wide hover:text-primary`}
+          className="clickable text-xs font-medium tracking-wide hover:text-primary"
         >
           delete
         </div>
@@ -85,6 +90,7 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
           <div>
             <div>{title}</div>
             <div>{description}</div>
+            <div>{is_published ? "is published" : "is not published"}</div>
           </div>
         </div>
       </a>
