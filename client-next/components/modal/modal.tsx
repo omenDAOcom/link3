@@ -34,7 +34,7 @@ const Modal = ({ isOpen, onClose, children, contentClass }: ModalProps) => {
         <div
           className={`
         ${isShown ? "opacity-100" : "opacity-0"}
-        transition duration-[${DURATION}ms] ease-linear
+        transition duration-[300ms] ease-linear
         absolute inset-0`}
         >
           <div className="fixed inset-0 z-10 flex items-center justify-center">
