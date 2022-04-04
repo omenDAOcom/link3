@@ -144,11 +144,6 @@ impl Link3 {
 
     let index = self.get_index(id);
 
-    // // Comment for now, until we sure that we can't delete published items
-    // if self.links[index].is_published() {
-    //     panic!("Cannot delete published link");
-    // }
-
     // Remove item
     self.links.remove(index);
   }
@@ -567,29 +562,6 @@ mod tests {
       "Should've returned an item"
     );
   }
-
-  // // Comment for now, until we sure that we can't delete published items
-  // #[test]
-  // #[should_panic(expected = "Cannot delete published link")]
-  // fn delete_item_published() {
-  //     // Given
-  //     let context = get_context(vec![], false, Some(1));
-  //     testing_env!(context);
-  //     let mut contract = generate_contract(Some(false));
-
-  //     contract.create_link(
-  //         "some_uri".to_string(),
-  //         "some_title".to_string(),
-  //         "some_description".to_string(),
-  //         Some("image".to_string()),
-  //         true,
-  //     );
-
-  //     // When
-  //     contract.delete_link(0);
-  //     // Then
-  //     // - Should panic
-  // }
 
   #[test]
   #[should_panic(expected = "Only the owner can delete a link")]
