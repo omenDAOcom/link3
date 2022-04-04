@@ -138,8 +138,11 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
-      console.log("result", result);
-      getHub(result.transaction.signer_id as string);
+      // Convert base64 response to string
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
       return result;
     } catch (error) {
       throw error;
@@ -161,8 +164,11 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
-      console.log("result", result);
-      getHub(result.transaction.signer_id as string);
+      // Convert base64 response to string
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
       return result;
     } catch (error) {
       throw error;
