@@ -20,7 +20,7 @@ const Dashboard: NextPage = () => {
       </Head>
 
       <main className=" flex justify-evenly space-x-10">
-        {accountId && <Hub accountId={accountId} />}
+        {accountId && <Hub accountId={accountId} isOwner={true} />}
         <LinkForm cta="Create" />
       </main>
 

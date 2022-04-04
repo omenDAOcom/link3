@@ -6,13 +6,14 @@ import Link from "next/link";
 
 interface Props {
   accountId: string;
+  isOwner?: boolean;
 }
 
 const Hub = (props: Props) => {
-  const { accountId } = props;
+  const { accountId, isOwner } = props;
   const { hub, getHub } = useNear();
   const fetchGetHub = useCallback(async () => {
-    await getHub(accountId);
+    await getHub(accountId, isOwner);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId]);
 

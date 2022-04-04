@@ -17,7 +17,7 @@ type nearContextType = {
   hub: Hub | null;
   show: () => void;
   logout: () => void;
-  getHub: (account_id: string) => Promise<any>;
+  getHub: (account_id: string, is_owner?: boolean) => Promise<any>;
   addLink: (props: Link) => Promise<any>;
   createHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
@@ -104,7 +104,10 @@ export function NearProvider({ children }: Props) {
     selector.show();
   };
 
-  async function getHub(account_id: string): Promise<Hub | null> {
+  async function getHub(
+    account_id: string,
+    isOwner?: boolean
+  ): Promise<Hub | null> {
     try {
       if (!selector || !account_id) {
         return null;
@@ -113,7 +116,14 @@ export function NearProvider({ children }: Props) {
         methodName: "get",
         args: { account_id },
       });
-      setHub(result);
+      if (isOwner && accountId === account_id) {
+        setHub(result);
+      } else {
+        result.links = result.links.filter(
+          (link: { is_published: boolean }) => link.is_published
+        );
+        setHub(result);
+      }
       return result;
     } catch (error) {
       console.log("error", error);
