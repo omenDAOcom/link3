@@ -32,6 +32,11 @@ impl MainHub {
     self.hub.get(&account_id)
   }
 
+  pub fn get_plan_limit() -> u64 {
+    // for now, we are hardcoding the plan limit
+    return 10;
+  }
+
   /****************
    * CALL METHODS *
    ****************/
@@ -302,7 +307,7 @@ mod tests {
     // Then
     let link3 = main.get("alice.testnet".to_string());
     let info = link3.unwrap().info();
-    
+
     assert_eq!(info.0, "title".to_string(), "Title should be updated");
   }
 }
