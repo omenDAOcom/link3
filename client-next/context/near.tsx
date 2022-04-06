@@ -192,7 +192,13 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
-      console.log("result", result);
+      
+      // Convert base64 response to string
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
+
       return result;
     } catch (error) {
       console.log("error", error);
