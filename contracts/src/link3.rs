@@ -130,6 +130,11 @@ impl Link3 {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can create a link");
     }
+
+    if self.links.len() >= 10 {
+      panic!("You can only have 10 links");
+    }
+
     let last = self.links.last();
     let id = u64::try_from(if last.is_some() {
       last.unwrap().id() + 1
@@ -280,7 +285,7 @@ mod tests {
       epoch_height: 19,
     }
   }
-  
+
   const VALID_IMAGE_URI: &str = "QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz";
 
   fn generate_contract(is_published: Option<bool>) -> Link3 {
@@ -434,6 +439,28 @@ mod tests {
 
     // Then
     assert!(contract.list().len() == 1, "Should have at one item");
+  }
+
+  #[test]
+  #[should_panic(expected = "You can only have 10 links")]
+  fn create_link_over_limit() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    // When
+    for _i in 1..12 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    // Then
+    // Should panic
   }
 
   #[test]
