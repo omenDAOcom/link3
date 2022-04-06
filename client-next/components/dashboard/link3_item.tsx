@@ -26,6 +26,7 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
     console.log("Deleted link", link);
   };
 
+  console.log("Link3Item", image_uri);
   return (
     <div
       className={`${className} w-full relative p-4 rounded border border-accent w-full overflow-hidden`}
