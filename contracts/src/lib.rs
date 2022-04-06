@@ -58,20 +58,16 @@ impl MainHub {
     title: String,
     description: String,
     image_uri: Option<String>,
-  ) {
+  ) -> Link3 {
     let mut link3: Link3 = Self::get(&self, env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
     // Add item
-    link3.create_link(
-      uri,
-      title,
-      description,
-      image_uri,
-    );
+    link3.create_link(uri, title, description, image_uri);
 
     // Save to hub state
     self.hub.insert(&env::signer_account_id(), &link3);
+    return link3;
   }
 
   pub fn update_link(
@@ -81,21 +77,16 @@ impl MainHub {
     title: String,
     description: String,
     image_uri: Option<String>,
-  ) {
+  ) -> Link3 {
     let mut link3: Link3 = Self::get(&self, env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
     // Update item
-    link3.update_link(
-      id,
-      uri,
-      title,
-      description,
-      image_uri,
-    );
+    link3.update_link(id, uri, title, description, image_uri);
 
     // Save to hub state
     self.hub.insert(&env::signer_account_id(), &link3);
+    return link3;
   }
 
   pub fn delete_link(&mut self, id: u64) -> Link3 {
@@ -109,10 +100,7 @@ impl MainHub {
     self.hub.insert(&env::signer_account_id(), &link3);
 
     // Return self
-    return self
-      .hub
-      .get(&env::signer_account_id())
-      .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+    return link3;
   }
 }
 
