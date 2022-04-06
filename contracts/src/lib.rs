@@ -32,7 +32,7 @@ impl MainHub {
     self.hub.get(&account_id)
   }
 
-  pub fn get_plan_limit() -> u64 {
+  pub fn get_plan_limit(&self) -> u64 {
     // for now, we are hardcoding the plan limit
     return 10;
   }
