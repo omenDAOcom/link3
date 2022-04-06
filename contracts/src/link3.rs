@@ -142,7 +142,14 @@ impl Link3 {
       1
     })
     .unwrap();
-    let item = Item::new(id, uri, title, description, image_uri);
+
+    let order = u64::try_from(if last.is_some() {
+      last.unwrap().order() + 1
+    } else {
+      0
+    })
+    .unwrap();
+    let item = Item::new(id, uri, title, description, image_uri, order);
 
     self.links.push(item);
     // Return created item
@@ -162,7 +169,14 @@ impl Link3 {
     }
     let index = self.get_index(id);
 
-    let item = Item::new(id, uri, title, description, image_uri);
+    let item = Item::new(
+      id,
+      uri,
+      title,
+      description,
+      image_uri,
+      self.links[index].order(),
+    );
 
     // Update item
     self.links[index] = item;

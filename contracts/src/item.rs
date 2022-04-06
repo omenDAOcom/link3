@@ -11,6 +11,7 @@ pub struct Item {
   title: String,
   description: String,
   image_uri: Option<String>,
+  order: u64,
 }
 
 // Core Logic/Implementation
@@ -23,6 +24,7 @@ impl Item {
     title: String,
     description: String,
     image_uri: Option<String>,
+    order: u64,
   ) -> Self {
     log!("Creating new item with title {},", &title);
 
@@ -32,6 +34,7 @@ impl Item {
       title,
       description,
       image_uri,
+      order,
     }
   }
 
@@ -40,6 +43,10 @@ impl Item {
    ****************/
   pub fn id(&self) -> u64 {
     self.id
+  }
+
+  pub fn order(&self) -> u64 {
+    self.order
   }
 
   pub fn read(&self) -> ItemInfo {
@@ -54,7 +61,10 @@ impl Item {
   /****************
    * CALL METHODS *
    ****************/
-
+  pub fn set_order(&mut self, order: u64) -> &Item {
+    self.order = order;
+    self
+  }
   /************
    * INTERNAL *
    ************/
@@ -128,6 +138,7 @@ mod tests {
       "A random title".to_string(),
       "The item description".to_string(),
       Some("https://s3.envato.com/files/244088191/Google%20Logo.1.jpg".to_string()),
+      0,
     )
   }
 
@@ -155,6 +166,7 @@ mod tests {
       "A random title".to_string(),
       "The item description".to_string(),
       Some("https://s3.envato.com/files/244088191/Google%20Logo.1.jpg".to_string()),
+      0,
     );
     // Then
     assert_eq!(123, contract.id);
@@ -184,4 +196,16 @@ mod tests {
   }
 
   // Missing test item_info maps correctly when has_access is false
+
+  #[test]
+  fn set_order_works() {
+    // Given
+    let context = get_context(vec![], false);
+    testing_env!(context);
+    let mut item = generate_item(123);
+    // When
+    item.set_order(456);
+    // Then
+    assert_eq!(item.order, 456, "Order should be 456");
+  }
 }
