@@ -20,6 +20,7 @@ type nearContextType = {
   getHub: (account_id: string) => Promise<any>;
   addLink: (props: Link) => Promise<any>;
   createHub: (props: HubDto) => Promise<any>;
+  updateHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
   deleteLink: (id: string) => Promise<any>;
 };
@@ -35,6 +36,7 @@ const nearContextDefaultValues: nearContextType = {
   getHub: () => Promise.resolve(),
   addLink: () => Promise.resolve(),
   createHub: () => Promise.resolve(),
+  updateHub: () => Promise.resolve(),
   updateLink: () => Promise.resolve(),
   deleteLink: () => Promise.resolve(),
 };
@@ -198,6 +200,35 @@ export function NearProvider({ children }: Props) {
     }
   }
 
+  async function updateHub(props: HubDto) {
+    try {
+      console.log("CONTRACT CALL update hub", props);
+      const result = await selector.contract.signAndSendTransaction({
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "update_profile",
+              args: { ...props },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
+      });
+
+      // Convert base64 response to string
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
+
+      return result;
+    } catch (error) {
+      console.log("error", error);
+      throw error;
+    }
+  }
+
   async function deleteLink(id: string) {
     try {
       const result = await selector.contract.signAndSendTransaction({
@@ -237,6 +268,7 @@ export function NearProvider({ children }: Props) {
     getHub,
     addLink,
     createHub,
+    updateHub,
     updateLink,
     deleteLink,
   };
