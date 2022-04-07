@@ -2,6 +2,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::{env, near_bindgen, AccountId};
+use std::collections::HashMap;
 // Crates
 use crate::link3::Link3;
 mod item;
@@ -120,6 +121,18 @@ impl MainHub {
     self.hub.insert(&env::signer_account_id(), &link3);
 
     // Return self
+    return link3;
+  }
+
+  pub fn reorder_links(&mut self, new_orders: HashMap<u64, u64>) -> Link3 {
+    let mut link3: Link3 = Self::get(&self, env::signer_account_id())
+      .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+
+    // Update item
+    link3.reorder_links(new_orders);
+
+    // Save to hub state
+    self.hub.insert(&env::signer_account_id(), &link3);
     return link3;
   }
 }
@@ -309,5 +322,42 @@ mod tests {
     let info = link3.unwrap().info();
 
     assert_eq!(info.0, "title".to_string(), "Title should be updated");
+  }
+
+  #[test]
+  fn call_reorder_links() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+
+    let mut main = MainHub::default();
+    main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+    main.add_link(
+      "uri".to_string(),
+      "title".to_string(),
+      "description".to_string(),
+      Some(VALID_IMAGE_URI.to_string()),
+    );
+    main.add_link(
+      "uri2".to_string(),
+      "title2".to_string(),
+      "description2".to_string(),
+      Some(VALID_IMAGE_URI.to_string()),
+    );
+
+    // When
+    let new_orders = HashMap::from([(1, 1), (2, 0)]);
+    main.reorder_links(new_orders);
+    // Then
+    let link3 = main.get("alice.testnet".to_string());
+
+    let links = link3.unwrap().list_all();
+
+    assert_eq!(
+      links[0].order(),1, "Order should be updated"
+    );
+    assert_eq!(
+      links[1].order(),0, "Order should be updated"
+    );
   }
 }

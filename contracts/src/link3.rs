@@ -1,4 +1,4 @@
-use key_vec::KeyVec;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::vec;
 // To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
@@ -168,7 +168,7 @@ impl Link3 {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can update a link");
     }
-    let index = self.get_index(id);
+    let index = self.get_item_index(id);
 
     let item = Item::new(
       id,
@@ -190,21 +190,22 @@ impl Link3 {
       panic!("Only the owner can delete a link");
     }
 
-    let index = self.get_index(id);
+    let index = self.get_item_index(id);
 
     // Remove item
     self.links.remove(index);
   }
 
-  pub fn reorder_links(&mut self, new_orders: KeyVec<u64, u64>) {
+  pub fn reorder_links(&mut self, new_orders: HashMap<u64, u64>) {
     if env::signer_account_id() != self.owner_account_id {
       panic!("Only the owner can reorder links");
     }
 
     for (id, order) in new_orders.iter() {
-      let index = self.get_index(*id);
+      let index = self.get_item_index(*id);
       
-      let index_item_with_new_order = self.get_index_by_order(*order);
+      let index_item_with_new_order = self.get_item_index_by_order(*order);
+
       let old_order = self.links[index].order();
       self.links[index_item_with_new_order].set_order(old_order);
       
@@ -215,7 +216,7 @@ impl Link3 {
   /*******************
    * PRIVATE METHODS *
    *******************/
-  fn get_index_by_order(&self, order: u64) -> usize {
+  fn get_item_index_by_order(&self, order: u64) -> usize {
     self
       .links
       .iter()
@@ -224,7 +225,7 @@ impl Link3 {
         panic!("Link does not exist");
       })
   }
-  fn get_index(&mut self, id: u64) -> usize {
+  fn get_item_index(&mut self, id: u64) -> usize {
     self
       .links
       .iter()
@@ -783,7 +784,7 @@ mod tests {
 
     let id = 1;
     // When
-    contract.get_index(id);
+    contract.get_item_index(id);
     // Then
     // - Should panic
   }
@@ -804,7 +805,7 @@ mod tests {
 
     // When
     let id = 1;
-    let index = contract.get_index(id);
+    let index = contract.get_item_index(id);
     // Then
     assert_eq!(index, 0, "Should've returned the index of the item");
   }
@@ -1047,7 +1048,7 @@ mod tests {
       );
     }
 
-    let new_orders = KeyVec::from(vec![(1, 1), (2, 0), (3, 2)]);
+    let new_orders = HashMap::from([(1, 1), (2, 0), (3, 2)]);
 
     // When
     contract.reorder_links(new_orders);
@@ -1084,7 +1085,7 @@ mod tests {
       );
     }
 
-    let new_orders = KeyVec::from(vec![(1, 1), (2, 3)]);
+    let new_orders = HashMap::from([(1, 1), (2, 3)]);
 
     // When
     contract.reorder_links(new_orders);
