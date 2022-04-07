@@ -80,7 +80,7 @@ const HubForm = ({ cta, hub, onSubmitResolve }: Props) => {
         const cid = await uploadImage(localImageFile);
         hub.image_uri = cid;
       }
-      if (cta === "Create") {
+      if (cta === "create") {
         await createHub(hub);
         addToast("Hub created", { appearance: "success" });
       } else {

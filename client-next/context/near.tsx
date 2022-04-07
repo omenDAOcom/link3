@@ -24,6 +24,7 @@ type nearContextType = {
   updateHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
   deleteLink: (id: string) => Promise<any>;
+  reorderLinks: (props: Object) => Promise<any>;
 };
 
 const nearContextDefaultValues: nearContextType = {
@@ -41,6 +42,7 @@ const nearContextDefaultValues: nearContextType = {
   updateHub: () => Promise.resolve(),
   updateLink: () => Promise.resolve(),
   deleteLink: () => Promise.resolve(),
+  reorderLinks: () => Promise.resolve(),
 };
 
 const NearContext = createContext<nearContextType>(nearContextDefaultValues);
@@ -187,6 +189,32 @@ export function NearProvider({ children }: Props) {
     }
   }
 
+  async function reorderLinks(props: Object) {
+    try {
+      console.log("CONTRACT CALL reorderLink", props);
+      const result = await selector.contract.signAndSendTransaction({
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "reorder_links",
+              args: { ...props },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
+      });
+      // Convert base64 response to string
+      const data = Buffer.from(result.status.SuccessValue, "base64").toString(
+        "binary"
+      );
+      setHub(JSON.parse(data));
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async function createHub(props: HubDto) {
     try {
       console.log("CONTRACT CALL hub", props);
@@ -288,6 +316,7 @@ export function NearProvider({ children }: Props) {
     updateHub,
     updateLink,
     deleteLink,
+    reorderLinks,
   };
 
   return (
