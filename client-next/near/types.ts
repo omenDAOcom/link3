@@ -1,4 +1,5 @@
 export interface Link {
+  order: any;
   uri: string,
   title: string,
   description: string,

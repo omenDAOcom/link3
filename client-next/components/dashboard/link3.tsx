@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
+import { ReactSortable } from "react-sortablejs";
 import { useToasts } from "react-toast-notifications";
 // Components
 import Link3Item from "./link3_item";
@@ -16,6 +17,9 @@ const Link3 = ({ links }: Props) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const [tempLinks, setTempLinks] = useState(
+    links.sort((a, b) => a.order - b.order)
+  );
   const [link, setLink] = useState<Link | null>(null);
 
   const openModal = (link: Link) => {
@@ -56,15 +60,15 @@ const Link3 = ({ links }: Props) => {
   // };
 
   const reorder = async () => {
-    const newOrder = {
-      1: 1,
-      2: 0,
-    };
-    const result = await reorderLinks({ new_orders: newOrder });
-    console.log("result", result);
+    const cenas = tempLinks.reduce((acc, link, index) => {
+      acc[link.id] = index;
+      return acc;
+    });
+    console.log("newOrder", cenas);
+    // const result = await reorderLinks({ new_orders: cenas });
+    console.log("links", links);
+    console.log("tempLinks", tempLinks);
   };
-
-  console.log("links", links);
 
   return (
     <>
@@ -75,14 +79,19 @@ const Link3 = ({ links }: Props) => {
         TEST REORDER
       </button>
       <div className="space-y-4 w-full">
-        {links.map((link: Link) => (
-          <Link3Item
-            key={link.id}
-            link={link}
-            onEdit={openModal}
-            onDelete={confirmDelete}
-          />
-        ))}
+        <ReactSortable
+          list={tempLinks}
+          setList={(newState) => setTempLinks(newState)}
+        >
+          {tempLinks.map((link: Link) => (
+            <Link3Item
+              key={link.id}
+              link={link}
+              onEdit={openModal}
+              onDelete={confirmDelete}
+            />
+          ))}
+        </ReactSortable>
       </div>
       {isOpen && link && (
         <ModalEditLink isOpen={isOpen} onClose={closeModal} link={link} />
