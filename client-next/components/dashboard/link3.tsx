@@ -60,9 +60,11 @@ const Link3 = ({ links }: Props) => {
       1: 1,
       2: 0,
     };
-    const result = await reorderLinks(newOrder);
+    const result = await reorderLinks({ new_orders: newOrder });
     console.log("result", result);
   };
+
+  console.log("links", links);
 
   return (
     <>
