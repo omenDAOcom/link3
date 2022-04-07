@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 #near-sdk = "4.0.0-pre.5"
 near-sdk = "3.1.0"
+key-vec= "0.3.0"
 serde = { version = "1.0", features = ["derive"] }
 
 [profile.release]

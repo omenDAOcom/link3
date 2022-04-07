@@ -1,3 +1,4 @@
+use key_vec::KeyVec;
 use std::convert::TryFrom;
 use std::vec;
 // To conserve gas, efficient serialization is achieved through Borsh (http://borsh.io/)
@@ -195,10 +196,34 @@ impl Link3 {
     self.links.remove(index);
   }
 
+  pub fn reorder_links(&mut self, new_orders: KeyVec<u64, u64>) {
+    if env::signer_account_id() != self.owner_account_id {
+      panic!("Only the owner can reorder links");
+    }
+
+    for (id, order) in new_orders.iter() {
+      let index = self.get_index(*id);
+      
+      let index_item_with_new_order = self.get_index_by_order(*order);
+      let old_order = self.links[index].order();
+      self.links[index_item_with_new_order].set_order(old_order);
+      
+      self.links[index].set_order(*order);
+    }
+  }
+
   /*******************
    * PRIVATE METHODS *
    *******************/
-
+  fn get_index_by_order(&self, order: u64) -> usize {
+    self
+      .links
+      .iter()
+      .position(|item| item.order() == order)
+      .unwrap_or_else(|| {
+        panic!("Link does not exist");
+      })
+  }
   fn get_index(&mut self, id: u64) -> usize {
     self
       .links
@@ -1006,4 +1031,88 @@ mod tests {
       "Should've updated the image cid"
     );
   }
+
+  #[test]
+  fn reorder_links_with_matching_pairs() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+    for _i in 0..3 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    let new_orders = KeyVec::from(vec![(1, 1), (2, 0), (3, 2)]);
+
+    // When
+    contract.reorder_links(new_orders);
+    // Then
+    assert_eq!(
+      contract.links[0].order(),
+      1,
+      "Should've updated the first link order"
+    );
+    assert_eq!(
+      contract.links[1].order(),
+      0,
+      "Should've updated the second link order"
+    );
+    assert_eq!(
+      contract.links[2].order(),
+      2,
+      "Should've updated the third link order"
+    );
+  }
+
+  #[test]
+  fn reorder_links_no_pairs() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+    for _i in 0..4 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    let new_orders = KeyVec::from(vec![(1, 1), (2, 3)]);
+
+    // When
+    contract.reorder_links(new_orders);
+    for i in 0..4 {
+      println!("id:{} - order:{}", contract.links[i].id(), contract.links[i].order());
+    }
+    // Then
+    assert_eq!(
+      contract.links[0].order(),
+      1,
+      "Should've updated the 1 link order"
+    );
+    assert_eq!(
+      contract.links[1].order(),
+      3,
+      "Should've updated the 3 link order"
+    );
+    assert_eq!(
+      contract.links[2].order(),
+      2,
+      "Should've updated the 2 link order"
+    );
+    assert_eq!(
+      contract.links[3].order(),
+      0,
+      "Should've updated the 0 link order"
+    );
+  }
+
+
 }
