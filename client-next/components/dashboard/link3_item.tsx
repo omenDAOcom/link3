@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "../../near/types";
+import IconDraggable from "../icons/icon_draggable";
 import { NearLogo } from "../icons/near";
 
 interface Props {
@@ -29,9 +30,9 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
   return (
     <>
       <div className="flex space-x-4 items-center">
-        <p className="cursor-move">...</p>
+        <IconDraggable className="w-8 cursor-move" />
         <div
-          className={`${className} ignore-elements w-full relative p-4 rounded border border-accent w-full overflow-hidden`}
+          className={`${className} not-trigger-drag w-full relative p-4 rounded border border-accent w-full overflow-hidden`}
         >
           {isDeleting && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/70 z-10">
