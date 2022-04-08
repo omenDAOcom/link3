@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
 import { ReactSortable } from "react-sortablejs";
@@ -22,6 +22,10 @@ const Link3 = ({ links }: Props) => {
     links.sort((a, b) => a.order - b.order)
   );
   const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+
+  const updateLocalLinks = useEffect(() => {
+    setLocalLinks(links.sort((a, b) => a.order - b.order));
+  }, [links]);
 
   const openModal = (link: Link) => {
     setIsOpen(true);
@@ -62,12 +66,16 @@ const Link3 = ({ links }: Props) => {
         orderMap[link.id] = index;
       });
 
-      await reorderLinks({ new_orders: cenas });
+      const vec = localLinks.map((link) => link.id);
+      console.log("vec", vec);
+      await reorderLinks({ id_lists: vec });
       addToast("Links new order saved", { appearance: "success" });
 
       setIsPending(false);
     } catch (error) {
       addToast("Error saving new order", { appearance: "error" });
+      // reset local links to original order
+      updateLocalLinks;
       setIsPending(false);
     }
   };
@@ -93,6 +101,7 @@ const Link3 = ({ links }: Props) => {
       >
         <ReactSortable
           list={localLinks}
+          setList={(newSelection) => setLocalLinks(newSelection)}
           animation={200}
           delay={2}
           className="space-y-4"
