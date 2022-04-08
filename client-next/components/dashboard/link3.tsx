@@ -68,7 +68,7 @@ const Link3 = ({ links }: Props) => {
 
       const vec = localLinks.map((link) => link.id);
       console.log("vec", vec);
-      await reorderLinks({ id_lists: vec });
+      await reorderLinks({ id_list: vec });
       addToast("Links new order saved", { appearance: "success" });
 
       setIsPending(false);
