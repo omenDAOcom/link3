@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
 import { ReactSortable } from "react-sortablejs";
@@ -51,14 +51,18 @@ const Link3 = ({ links }: Props) => {
   const reorder = async () => {
     try {
       setIsPending(true);
-
-      const new_orders: { [key: string]: number } = {};
-
+      const cenas: Map<number, number> = new Map();
       localLinks.forEach((link, index) => {
-        new_orders[link.id] = index;
+        cenas.set(parseInt(link.id), index);
       });
 
-      await reorderLinks({ new_orders: new_orders });
+      const orderMap: { [key: string]: number } = {};
+
+      localLinks.forEach((link, index) => {
+        orderMap[link.id] = index;
+      });
+
+      await reorderLinks({ new_orders: cenas });
       addToast("Links new order saved", { appearance: "success" });
 
       setIsPending(false);
@@ -89,7 +93,6 @@ const Link3 = ({ links }: Props) => {
       >
         <ReactSortable
           list={localLinks}
-          setList={(newState) => setLocalLinks(newState)}
           animation={200}
           delay={2}
           className="space-y-4"
