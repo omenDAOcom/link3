@@ -55,20 +55,9 @@ const Link3 = ({ links }: Props) => {
   const reorder = async () => {
     try {
       setIsPending(true);
-      const cenas: Map<number, number> = new Map();
-      localLinks.forEach((link, index) => {
-        cenas.set(parseInt(link.id), index);
-      });
 
-      const orderMap: { [key: string]: number } = {};
+      await reorderLinks(localLinks.map((link) => link.id));
 
-      localLinks.forEach((link, index) => {
-        orderMap[link.id] = index;
-      });
-
-      const vec = localLinks.map((link) => link.id);
-      console.log("vec", vec);
-      await reorderLinks({ id_list: vec });
       addToast("Links new order saved", { appearance: "success" });
 
       setIsPending(false);

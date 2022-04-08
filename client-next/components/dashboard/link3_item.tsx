@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
-  const { title, image_uri, uri, description } = link;
+  const { title, image_uri, uri, description, order } = link;
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
@@ -76,6 +76,7 @@ const Link3Item = ({ link, onEdit, onDelete, className }: Props) => {
                 <div>{title}</div>
                 <div>{description}</div>
               </div>
+              <p>{order}</p>
             </div>
           </a>
         </div>
