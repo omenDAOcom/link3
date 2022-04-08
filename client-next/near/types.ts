@@ -3,7 +3,7 @@ export interface Link {
   uri: string,
   title: string,
   description: string,
-  id?: string,
+  id: string,
   image_uri?: string | null,
 }
 

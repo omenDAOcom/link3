@@ -15,7 +15,8 @@ const Link3 = ({ links }: Props) => {
   const { deleteLink, reorderLinks } = useNear();
   const { addToast } = useToasts();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const [tempLinks, setTempLinks] = useState(
     links.sort((a, b) => a.order - b.order)
@@ -59,29 +60,56 @@ const Link3 = ({ links }: Props) => {
   //   );
   // };
 
+  // const reorder = async () => {
+  //   const olha = {};
+  //   const cenas: Object = tempLinks.reduce((acc, link, index): Object => {
+  //     olha[link.id] = index;
+  //     return olha;
+  //   });
+  //   console.log("newOrder", cenas);
+  //   const result = await reorderLinks({ new_orders: cenas });
+  //   console.log("links", links);
+  //   console.log("tempLinks", tempLinks);
+  // };
+
   const reorder = async () => {
-    const cenas = tempLinks.reduce((acc, link, index) => {
-      acc[link.id] = index;
-      return acc;
+    setIsPending(true);
+    const new_orders: { [key: string]: number } = {};
+    tempLinks.forEach((link, index) => {
+      new_orders[link.id] = index;
     });
-    console.log("newOrder", cenas);
-    // const result = await reorderLinks({ new_orders: cenas });
-    console.log("links", links);
-    console.log("tempLinks", tempLinks);
+    console.log("new_orders", new_orders);
+    const result = await reorderLinks({ new_orders: new_orders });
+    addToast("Links new order saved", { appearance: "success" });
+    setIsPending(false);
+    // console.log("links", links);
+    // console.log("tempLinks", tempLinks);
   };
 
   return (
     <>
       <button
-        className="font-semibold hover:text-primary clickable"
+        className={`text-xs font-medium tracking-wide hover:text-primary clickable items-start w-full text-left
+        ${isPending ? "text-primary animate-pulse" : ""}
+        `}
         onClick={reorder}
       >
-        TEST REORDER
+        save order
       </button>
-      <div className="space-y-4 w-full">
+      <div
+        className={`space-y-4 w-full ${
+          isPending
+            ? "opacity-10 pointer-events-none cursor-not-allowed"
+            : "opacity-100 pointer-events-auto"
+        }`}
+      >
         <ReactSortable
           list={tempLinks}
           setList={(newState) => setTempLinks(newState)}
+          animation={200}
+          delay={2}
+          className="space-y-4"
+          filter=".ignore-elements"
         >
           {tempLinks.map((link: Link) => (
             <Link3Item
