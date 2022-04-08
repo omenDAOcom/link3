@@ -2,7 +2,6 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::{env, near_bindgen, AccountId};
-use std::collections::HashMap;
 // Crates
 use crate::link3::Link3;
 mod item;
@@ -124,12 +123,12 @@ impl MainHub {
     return link3;
   }
 
-  pub fn reorder_links(&mut self, new_orders: HashMap<u64, u64>) -> Link3 {
+  pub fn reorder_links(&mut self, id_list: Vec<u64>) -> Link3 {
     let mut link3: Link3 = Self::get(&self, env::signer_account_id())
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
     // Update item
-    link3.reorder_links(new_orders);
+    link3.reorder_links(id_list);
 
     // Save to hub state
     self.hub.insert(&env::signer_account_id(), &link3);
@@ -346,18 +345,14 @@ mod tests {
     );
 
     // When
-    let new_orders = HashMap::from([(1, 1), (2, 0)]);
-    main.reorder_links(new_orders);
+    let id_list = vec![2, 1];
+    main.reorder_links(id_list);
     // Then
     let link3 = main.get("alice.testnet".to_string());
 
     let links = link3.unwrap().list_all();
 
-    assert_eq!(
-      links[0].order(),1, "Order should be updated"
-    );
-    assert_eq!(
-      links[1].order(),0, "Order should be updated"
-    );
+    assert_eq!(links[0].order(), 1, "Order should be updated");
+    assert_eq!(links[1].order(), 0, "Order should be updated");
   }
 }
