@@ -143,12 +143,8 @@ impl Link3 {
     })
     .unwrap();
 
-    let order = u64::try_from(if last.is_some() {
-      last.unwrap().order() + 1
-    } else {
-      0
-    })
-    .unwrap();
+    // Map order of creation to the order to the size of the vector
+    let order = u64::try_from(self.links.len()).unwrap();
     let item = Item::new(id, uri, title, description, image_uri, order);
 
     self.links.push(item);
@@ -189,10 +185,19 @@ impl Link3 {
       panic!("Only the owner can delete a link");
     }
 
-    let index = self.get_item_index(id);
+    let item_index = self.get_item_index(id);
+    let old_order = self.links[item_index].order();
 
     // Remove item
-    self.links.remove(index);
+    self.links.remove(item_index);
+
+    // Update order of other items
+    for i in 0..self.links.len() {
+      if self.links[i].order() > old_order {
+        let item_order = self.links[i].order();
+        self.links[i].set_order(item_order - 1);
+      }
+    }
   }
 
   pub fn reorder_links(&mut self, id_list: Vec<u64>) {
@@ -1111,6 +1116,46 @@ mod tests {
       contract.links[2].order(),
       2,
       "Should've updated the third link order"
+    );
+  }
+
+  #[test]
+  fn reorder_links_after_delete() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    for _i in 0..3 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    let new_orders = vec![3, 2, 1];
+
+    // index - id - order -> new order
+    // 0  -  1 - 2 -> 1
+    // 1  -  2 - 1 -> 0
+    // 2  -  3 - 0 -> deleted
+
+    // When
+    contract.reorder_links(new_orders);
+    contract.delete_link(3);
+
+    // Then
+    assert_eq!(
+      contract.links[0].order(),
+      1,
+      "Should've updated the first link order"
+    );
+    assert_eq!(
+      contract.links[1].order(),
+      0,
+      "Should've updated the second link order"
     );
   }
 }
