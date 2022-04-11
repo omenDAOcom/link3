@@ -130,6 +130,7 @@ impl Link3 {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can create a link");
     }
+
     let last = self.links.last();
     let id = u64::try_from(if last.is_some() {
       last.unwrap().id() + 1
