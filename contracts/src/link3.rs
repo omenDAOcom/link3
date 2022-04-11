@@ -102,18 +102,18 @@ impl Link3 {
       panic!("Only the owner can update the contract.");
     }
 
-    if self.title != title {
-      self.validate_title(&title);
+    if self.title != title && self.is_valid_title(&title) {
       self.title = title;
     }
 
-    if self.description != description {
-      self.validate_description(&description);
+    if self.description != description && self.is_valid_description(&description) {
       self.description = description;
     }
 
-    if image_uri.is_some() && self.image_uri != image_uri {
-      self.validate_image_uri(&image_uri.clone().unwrap());
+    if image_uri.is_some()
+      && self.image_uri != image_uri
+      && self.is_valid_image_uri(&image_uri.clone().unwrap())
+    {
       self.image_uri = image_uri;
     }
 
@@ -129,10 +129,6 @@ impl Link3 {
   ) -> &Item {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can create a link");
-    }
-
-    if self.links.len() >= 10 {
-      panic!("You can only have 10 links");
     }
 
     let last = self.links.last();
@@ -195,7 +191,7 @@ impl Link3 {
       })
   }
 
-  fn validate_title(&mut self, title: &String) {
+  fn is_valid_title(&mut self, title: &String) -> bool {
     if title.is_empty() {
       panic!("Title cannot be empty");
     }
@@ -207,9 +203,11 @@ impl Link3 {
     if title.len() > 20 {
       panic!("Title must be at most 20 characters long");
     }
+
+    return true;
   }
 
-  fn validate_description(&mut self, description: &String) {
+  fn is_valid_description(&mut self, description: &String) -> bool {
     if description.is_empty() {
       panic!("Description cannot be empty");
     }
@@ -221,15 +219,19 @@ impl Link3 {
     if description.len() > 200 {
       panic!("Description must be at most 200 characters long");
     }
+
+    return true;
   }
 
-  fn validate_image_uri(&mut self, image_uri: &String) {
+  fn is_valid_image_uri(&mut self, image_uri: &String) -> bool {
     if image_uri.is_empty() {
       panic!("Image uri cannot be empty");
     }
     if image_uri.len() != 46 {
       panic!("Image uri must be a valid ipfs hash");
     }
+
+    return true;
   }
 }
 
@@ -439,28 +441,6 @@ mod tests {
 
     // Then
     assert!(contract.list().len() == 1, "Should have at one item");
-  }
-
-  #[test]
-  #[should_panic(expected = "You can only have 10 links")]
-  fn create_link_over_limit() {
-    // Given
-    let context = get_context(vec![], false, Some(1));
-    testing_env!(context);
-    let mut contract = generate_contract(Some(true));
-
-    // When
-    for _i in 1..12 {
-      contract.create_link(
-        "some_uri".to_string(),
-        "some_title".to_string(),
-        "some_description".to_string(),
-        Some("image".to_string()),
-      );
-    }
-
-    // Then
-    // Should panic
   }
 
   #[test]
@@ -779,7 +759,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_title(&"".to_string());
+    contract.is_valid_title(&"".to_string());
     // Then
     // - Should panic
   }
@@ -793,7 +773,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_title(&"ab".to_string());
+    contract.is_valid_title(&"ab".to_string());
     // Then
     // - Should panic
   }
@@ -807,7 +787,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_title(&"abcdefghijklmnopqrstuvwxyz".to_string());
+    contract.is_valid_title(&"abcdefghijklmnopqrstuvwxyz".to_string());
     // Then
     // - Should panic
   }
@@ -820,7 +800,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_title(&"abc".to_string());
+    contract.is_valid_title(&"abc".to_string());
     // Then
     // - Should not panic
   }
@@ -834,7 +814,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_description(&"".to_string());
+    contract.is_valid_description(&"".to_string());
     // Then
     // - Should panic
   }
@@ -848,7 +828,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_description(&"ab".to_string());
+    contract.is_valid_description(&"ab".to_string());
     // Then
     // - Should panic
   }
@@ -862,7 +842,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_description(&"200JVqNGFrN3R8OC0DreT9yUEw6dkzCgyzLv9a6QslWC2wqdRkfjRD6ErbgUFYKHZdCzgFn1l9U719ANtFw6uDoNoIXoN0Q8c8RINKEZPDbpohxhDTnjl2YljFbP4JX2blOdpoCqglKxL6kZjPkqn2TXy6b9R54B8vmSDX3bQD6pnzdfR7l6MaFssnjsW7hLgp1mo61Gzy".to_string());
+    contract.is_valid_description(&"200JVqNGFrN3R8OC0DreT9yUEw6dkzCgyzLv9a6QslWC2wqdRkfjRD6ErbgUFYKHZdCzgFn1l9U719ANtFw6uDoNoIXoN0Q8c8RINKEZPDbpohxhDTnjl2YljFbP4JX2blOdpoCqglKxL6kZjPkqn2TXy6b9R54B8vmSDX3bQD6pnzdfR7l6MaFssnjsW7hLgp1mo61Gzy".to_string());
     // Then
     // - Should panic
   }
@@ -875,7 +855,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_description(&"abc".to_string());
+    contract.is_valid_description(&"abc".to_string());
     // Then
     // - Should not panic
   }
@@ -889,7 +869,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_image_uri(&"".to_string());
+    contract.is_valid_image_uri(&"".to_string());
     // Then
     // - Should panic
   }
@@ -903,7 +883,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_image_uri(&"3r131r31r31".to_string());
+    contract.is_valid_image_uri(&"3r131r31r31".to_string());
     // Then
     // - Should panic
   }
@@ -916,7 +896,7 @@ mod tests {
     let mut contract = generate_contract(Some(false));
 
     // When
-    contract.validate_image_uri(&VALID_IMAGE_URI.to_string());
+    contract.is_valid_image_uri(&VALID_IMAGE_URI.to_string());
     // Then
     // - Should not panic
   }
