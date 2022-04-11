@@ -52,6 +52,21 @@ impl MainHub {
     return link3;
   }
 
+  pub fn update_profile(
+    &mut self,
+    title: String,
+    description: String,
+    image_uri: Option<String>,
+  ) -> Link3 {
+    let mut link3 = Self::get(&self, env::signer_account_id()).unwrap();
+
+    link3.update(title, description, image_uri);
+
+    self.hub.insert(&env::signer_account_id(), &link3);
+
+    return link3;
+  }
+
   pub fn add_link(
     &mut self,
     uri: String,
@@ -156,6 +171,8 @@ mod tests {
     }
   }
 
+  const VALID_IMAGE_URI: &str = "QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz";
+
   // mark individual unit tests with #[test] for them to be registered and fired
   #[test]
   fn create_link3_creates_with_correct_state() {
@@ -201,7 +218,7 @@ mod tests {
       "uri".to_string(),
       "title".to_string(),
       "description".to_string(),
-      Some("image_uri".to_string()),
+      Some(VALID_IMAGE_URI.to_string()),
     );
     // Then
     let link3 = main.get("alice.testnet".to_string());
@@ -220,7 +237,7 @@ mod tests {
       "uri".to_string(),
       "title".to_string(),
       "description".to_string(),
-      Some("image_uri".to_string()),
+      Some(VALID_IMAGE_URI.to_string()),
     );
     // When
     let id = 1;
@@ -229,7 +246,7 @@ mod tests {
       "uri".to_string(),
       "title".to_string(),
       "description".to_string(),
-      Some("image_uri".to_string()),
+      Some(VALID_IMAGE_URI.to_string()),
     );
     // Then
     let link3 = main.get("alice.testnet".to_string());
@@ -253,7 +270,7 @@ mod tests {
       "uri".to_string(),
       "title".to_string(),
       "description".to_string(),
-      Some("image_uri".to_string()),
+      Some(VALID_IMAGE_URI.to_string()),
     );
 
     let id = 1;
@@ -265,5 +282,27 @@ mod tests {
       link3.unwrap().list_all().is_empty(),
       "Link should be deleted"
     );
+  }
+
+  #[test]
+  fn update_profile() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+
+    let mut main = MainHub::default();
+    main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+
+    // When
+    main.update_profile(
+      "title".to_string(),
+      "description".to_string(),
+      Some(VALID_IMAGE_URI.to_string()),
+    );
+    // Then
+    let link3 = main.get("alice.testnet".to_string());
+    let info = link3.unwrap().info();
+    
+    assert_eq!(info.0, "title".to_string(), "Title should be updated");
   }
 }

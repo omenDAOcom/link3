@@ -92,6 +92,34 @@ impl Link3 {
     self.links.clone()
   }
 
+  pub fn update(
+    &mut self,
+    title: String,
+    description: String,
+    image_uri: Option<String>,
+  ) -> &Link3 {
+    if env::signer_account_id() != self.owner_account_id {
+      panic!("Only the owner can update the contract.");
+    }
+
+    if self.title != title && self.is_valid_title(&title) {
+      self.title = title;
+    }
+
+    if self.description != description && self.is_valid_description(&description) {
+      self.description = description;
+    }
+
+    if image_uri.is_some()
+      && self.image_uri != image_uri
+      && self.is_valid_image_uri(&image_uri.clone().unwrap())
+    {
+      self.image_uri = image_uri;
+    }
+
+    return self;
+  }
+
   pub fn create_link(
     &mut self,
     uri: String,
@@ -161,6 +189,49 @@ impl Link3 {
         panic!("Link does not exist");
       })
   }
+
+  fn is_valid_title(&mut self, title: &String) -> bool {
+    if title.is_empty() {
+      panic!("Title cannot be empty");
+    }
+
+    if title.len() < 3 {
+      panic!("Title must be at least 3 characters long");
+    }
+
+    if title.len() > 20 {
+      panic!("Title must be at most 20 characters long");
+    }
+
+    return true;
+  }
+
+  fn is_valid_description(&mut self, description: &String) -> bool {
+    if description.is_empty() {
+      panic!("Description cannot be empty");
+    }
+
+    if description.len() < 3 {
+      panic!("Description must be at least 3 characters long");
+    }
+
+    if description.len() > 200 {
+      panic!("Description must be at most 200 characters long");
+    }
+
+    return true;
+  }
+
+  fn is_valid_image_uri(&mut self, image_uri: &String) -> bool {
+    if image_uri.is_empty() {
+      panic!("Image uri cannot be empty");
+    }
+    if image_uri.len() != 46 {
+      panic!("Image uri must be a valid ipfs hash");
+    }
+
+    return true;
+  }
 }
 
 /*********
@@ -216,11 +287,13 @@ mod tests {
     }
   }
 
+  const VALID_IMAGE_URI: &str = "QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz";
+
   fn generate_contract(is_published: Option<bool>) -> Link3 {
     Link3::new(
       "This is an awesome title".to_string(),
       "This is the perfect description".to_string(),
-      Some("image_uri".to_string()),
+      Some(VALID_IMAGE_URI.to_string()),
       is_published,
     )
   }
@@ -269,7 +342,7 @@ mod tests {
       contract.description,
       "This is the perfect description".to_string()
     );
-    assert_eq!(contract.image_uri, Some("image_uri".to_string()));
+    assert_eq!(contract.image_uri, Some(VALID_IMAGE_URI.to_string()));
     assert_eq!(contract.is_published, true);
   }
 
@@ -674,5 +747,228 @@ mod tests {
     let index = contract.get_index(id);
     // Then
     assert_eq!(index, 0, "Should've returned the index of the item");
+  }
+
+  #[test]
+  #[should_panic(expected = "Title cannot be empty")]
+  fn validate_title_empty_string() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_title(&"".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Title must be at least 3 characters long")]
+  fn validate_title_less_chars_than_required() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_title(&"ab".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Title must be at most 20 characters long")]
+  fn validate_title_more_chars_than_allowed() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_title(&"abcdefghijklmnopqrstuvwxyz".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn validate_title() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_title(&"abc".to_string());
+    // Then
+    // - Should not panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Description cannot be empty")]
+  fn validate_description_empty_string() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_description(&"".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Description must be at least 3 characters long")]
+  fn validate_description_less_chars_than_required() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_description(&"ab".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Description must be at most 200 characters long")]
+  fn validate_description_more_chars_than_allowed() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_description(&"200JVqNGFrN3R8OC0DreT9yUEw6dkzCgyzLv9a6QslWC2wqdRkfjRD6ErbgUFYKHZdCzgFn1l9U719ANtFw6uDoNoIXoN0Q8c8RINKEZPDbpohxhDTnjl2YljFbP4JX2blOdpoCqglKxL6kZjPkqn2TXy6b9R54B8vmSDX3bQD6pnzdfR7l6MaFssnjsW7hLgp1mo61Gzy".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn validate_description() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_description(&"abc".to_string());
+    // Then
+    // - Should not panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Image uri cannot be empty")]
+  fn validate_image_uri_empty_string() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_image_uri(&"".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Image uri must be a valid ipfs hash")]
+  fn validate_image_uri_more_chars_than_allowed() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_image_uri(&"3r131r31r31".to_string());
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn validate_image_uri() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.is_valid_image_uri(&VALID_IMAGE_URI.to_string());
+    // Then
+    // - Should not panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Only the owner can update the contract.")]
+  fn update_not_own() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    // When
+    let alt_context = get_alternative_context(vec![], false, Some(1));
+    testing_env!(alt_context);
+    contract.update(
+      "some_title".to_string(),
+      "some_description".to_string(),
+      Some("imagecid".to_string()),
+    );
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn update_without_image() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    // When
+    contract.update(
+      "some_title".to_string(),
+      "some_description".to_string(),
+      None,
+    );
+    // Then
+    assert_eq!(
+      contract.image_uri,
+      Some(VALID_IMAGE_URI.to_string()),
+      "Image uri should not be updated"
+    );
+  }
+
+  #[test]
+  fn update_successfully() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    // When
+    contract.update(
+      "another_title".to_string(),
+      "another_description".to_string(),
+      Some("QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz".to_string()),
+    );
+    // Then
+    assert_eq!(
+      contract.title,
+      "another_title".to_string(),
+      "Should've updated the title"
+    );
+    assert_eq!(
+      contract.description,
+      "another_description".to_string(),
+      "Should've updated the description"
+    );
+    assert_eq!(
+      contract.image_uri,
+      Some("QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz".to_string()),
+      "Should've updated the image cid"
+    );
   }
 }
