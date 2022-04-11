@@ -6,8 +6,8 @@ import LinkForm from "../../components/dashboard/link_form";
 import LayoutDashboard from "../../components/layout_dashboard";
 
 const Dashboard: NextPage = () => {
-  const { accountId } = useNear();
-  
+  const { accountId, hub, linksLimit } = useNear();
+
   return (
     <LayoutDashboard>
       <Head>
@@ -21,7 +21,7 @@ const Dashboard: NextPage = () => {
 
       <main className=" flex justify-evenly space-x-10">
         {accountId && <Hub accountId={accountId} />}
-        <LinkForm cta="Create" />
+        {hub && hub.links.length < linksLimit && <LinkForm cta="Create" />}
       </main>
 
       <footer className=""></footer>

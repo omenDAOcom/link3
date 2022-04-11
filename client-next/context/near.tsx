@@ -10,11 +10,12 @@ import Big from "big.js";
 import { Hub, HubDto, Link } from "../near/types";
 
 type nearContextType = {
-  isReady: boolean;
-  isPending: boolean;
-  accountId: string | null;
-  isLoggedIn: boolean;
   hub: Hub | null;
+  isReady: boolean;
+  linksLimit: number;
+  isPending: boolean;
+  isLoggedIn: boolean;
+  accountId: string | null;
   show: () => void;
   logout: () => void;
   getHub: (account_id: string) => Promise<any>;
@@ -26,11 +27,12 @@ type nearContextType = {
 };
 
 const nearContextDefaultValues: nearContextType = {
-  isReady: false,
-  isPending: false,
-  accountId: null,
-  isLoggedIn: false,
   hub: null,
+  linksLimit: 10,
+  isReady: false,
+  accountId: null,
+  isPending: false,
+  isLoggedIn: false,
   show: () => {},
   logout: () => {},
   getHub: () => Promise.resolve(),
@@ -58,12 +60,16 @@ export function NearProvider({ children }: Props) {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isPending, setIsPending] = useState<boolean>(false);
   const [hub, setHub] = useState<Hub | null>(null);
+  const [linksLimit, setLinksLimit] = useState<number>(10);
 
   const initWallet = async () => {
     const walletSelector = await import("near-wallet-selector");
     const NearWalletSelector = walletSelector.default;
     const selector = new NearWalletSelector(nearConfig());
     await selector.init();
+    setLinksLimit(
+      await selector.contract.view({ methodName: "get_plan_limit" })
+    );
     setSelector(selector);
   };
 
@@ -83,6 +89,7 @@ export function NearProvider({ children }: Props) {
 
   useEffect(() => {
     handleSignIn();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selector]);
 
@@ -126,6 +133,9 @@ export function NearProvider({ children }: Props) {
     .toFixed();
 
   async function addLink(props: Link) {
+    if (hub && hub.links.length >= linksLimit) {
+      throw new Error("You have reached the limit of links");
+    }
     try {
       console.log("CONTRACT CALL addLink", props);
       const result = await selector.contract.signAndSendTransaction({
@@ -192,7 +202,7 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
-      
+
       // Convert base64 response to string
       const data = Buffer.from(result.status.SuccessValue, "base64").toString(
         "binary"
@@ -267,8 +277,9 @@ export function NearProvider({ children }: Props) {
     hub,
     isReady,
     accountId,
-    isLoggedIn,
     isPending,
+    isLoggedIn,
+    linksLimit,
     show,
     logout,
     getHub,
