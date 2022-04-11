@@ -9,6 +9,8 @@ mod link3;
 
 near_sdk::setup_alloc!();
 
+const LINK_LIMIT: i32 = 10;
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct MainHub {
@@ -32,9 +34,9 @@ impl MainHub {
     self.hub.get(&account_id)
   }
 
-  pub fn get_plan_limit(&self) -> u64 {
+  pub fn get_plan_limit(&self) -> i32 {
     // for now, we are hardcoding the plan limit
-    return 10;
+    return LINK_LIMIT;
   }
 
   /****************
@@ -83,6 +85,9 @@ impl MainHub {
       .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
 
     // Add item
+    if link3.list_all().len() >= LINK_LIMIT as usize {
+      panic!("You can only have {} links", LINK_LIMIT);
+    }
     link3.create_link(uri, title, description, image_uri);
 
     // Save to hub state
@@ -240,6 +245,30 @@ mod tests {
     // Then
     let link3 = main.get("alice.testnet".to_string());
     assert!(link3.unwrap().list().len() > 0);
+  }
+
+  #[test]
+  #[should_panic]
+  fn create_link_over_limit() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+
+    let mut main = MainHub::default();
+    main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+
+    // When
+    for _i in 0..11 {
+      main.add_link(
+        "uri".to_string(),
+        "title".to_string(),
+        "description".to_string(),
+        Some(VALID_IMAGE_URI.to_string()),
+      );
+    }
+
+    // Then
+    // Should panic
   }
 
   #[test]
