@@ -34,7 +34,7 @@ const CreateLink3: NextPage = () => {
       </Head>
 
       <main className=" flex flex-col justify-center items-center space-y-10 h-screen">
-        <HubForm />
+        <HubForm cta="create" />
       </main>
 
       <footer className=""></footer>
