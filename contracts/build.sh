@@ -72,6 +72,7 @@ if $IS_DEPLOY; then
     echo "Load the new contract account id with:"
     echo "> source ./neardev/dev-account.env"
 fi
+
 if $IS_COMPILE_DEPLOY; then
 echo "Compiling for release... 🤖"
     RUSTFLAGS='-C link-arg=-s' cargo build --target wasm32-unknown-unknown --release
