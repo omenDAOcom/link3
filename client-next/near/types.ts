@@ -1,8 +1,9 @@
 export interface Link {
+  order: any;
   uri: string,
   title: string,
   description: string,
-  id?: string,
+  id: number,
   image_uri?: string | null,
 }
 

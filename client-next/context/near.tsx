@@ -23,7 +23,8 @@ type nearContextType = {
   createHub: (props: HubDto) => Promise<any>;
   updateHub: (props: HubDto) => Promise<any>;
   updateLink: (props: Link) => Promise<any>;
-  deleteLink: (id: string) => Promise<any>;
+  deleteLink: (id: number) => Promise<any>;
+  reorderLinks: (idList: number[]) => Promise<any>;
 };
 
 const nearContextDefaultValues: nearContextType = {
@@ -41,6 +42,7 @@ const nearContextDefaultValues: nearContextType = {
   updateHub: () => Promise.resolve(),
   updateLink: () => Promise.resolve(),
   deleteLink: () => Promise.resolve(),
+  reorderLinks: () => Promise.resolve(),
 };
 
 const NearContext = createContext<nearContextType>(nearContextDefaultValues);
@@ -150,11 +152,13 @@ export function NearProvider({ children }: Props) {
           },
         ],
       });
+
       // Convert base64 response to string
       const data = Buffer.from(result.status.SuccessValue, "base64").toString(
         "binary"
       );
       setHub(JSON.parse(data));
+      console.log("addLink", data);
       return result;
     } catch (error) {
       throw error;
@@ -182,6 +186,34 @@ export function NearProvider({ children }: Props) {
       );
       setHub(JSON.parse(data));
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function reorderLinks(idList: number[]): Promise<Link> {
+    try {
+      console.log("CONTRACT CALL reorderLink", idList);
+      const result = await selector.contract.signAndSendTransaction({
+        actions: [
+          {
+            type: "FunctionCall",
+            params: {
+              methodName: "reorder_links",
+              args: { id_list: idList },
+              gas: BOATLOAD_OF_GAS,
+            },
+          },
+        ],
+      });
+
+      // Convert base64 response to string
+      const data = JSON.parse(
+        Buffer.from(result.status.SuccessValue, "base64").toString("binary")
+      );
+      setHub(data);
+
+      return data;
     } catch (error) {
       throw error;
     }
@@ -245,7 +277,7 @@ export function NearProvider({ children }: Props) {
     }
   }
 
-  async function deleteLink(id: string) {
+  async function deleteLink(id: number) {
     try {
       const result = await selector.contract.signAndSendTransaction({
         actions: [
@@ -288,6 +320,7 @@ export function NearProvider({ children }: Props) {
     updateHub,
     updateLink,
     deleteLink,
+    reorderLinks,
   };
 
   return (

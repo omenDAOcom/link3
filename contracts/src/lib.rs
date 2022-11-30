@@ -127,6 +127,18 @@ impl MainHub {
     // Return self
     return link3;
   }
+
+  pub fn reorder_links(&mut self, id_list: Vec<u64>) -> Link3 {
+    let mut link3: Link3 = Self::get(&self, env::signer_account_id())
+      .unwrap_or_else(|| env::panic(b"Could not find link3 for this account."));
+
+    // Update item
+    link3.reorder_links(id_list);
+
+    // Save to hub state
+    self.hub.insert(&env::signer_account_id(), &link3);
+    return link3;
+  }
 }
 
 /*********
@@ -338,5 +350,38 @@ mod tests {
     let info = link3.unwrap().info();
 
     assert_eq!(info.0, "title".to_string(), "Title should be updated");
+  }
+
+  #[test]
+  fn call_reorder_links() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+
+    let mut main = MainHub::default();
+    main.create("Hello".to_string(), "World".to_string(), None, Some(true));
+    main.add_link(
+      "uri".to_string(),
+      "title".to_string(),
+      "description".to_string(),
+      Some(VALID_IMAGE_URI.to_string()),
+    );
+    main.add_link(
+      "uri2".to_string(),
+      "title2".to_string(),
+      "description2".to_string(),
+      Some(VALID_IMAGE_URI.to_string()),
+    );
+
+    // When
+    let id_list = vec![2, 1];
+    main.reorder_links(id_list);
+    // Then
+    let link3 = main.get("alice.testnet".to_string());
+
+    let links = link3.unwrap().list_all();
+
+    assert_eq!(links[0].order(), 1, "Order should be updated");
+    assert_eq!(links[1].order(), 0, "Order should be updated");
   }
 }

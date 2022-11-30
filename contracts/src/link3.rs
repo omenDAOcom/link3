@@ -138,7 +138,10 @@ impl Link3 {
       1
     })
     .unwrap();
-    let item = Item::new(id, uri, title, description, image_uri);
+
+    // Map order of creation to the order to the size of the vector
+    let order = u64::try_from(self.links.len()).unwrap();
+    let item = Item::new(id, uri, title, description, image_uri, order);
 
     self.links.push(item);
     // Return created item
@@ -156,9 +159,16 @@ impl Link3 {
     if env::signer_account_id() != self.owner_account_id {
       env::panic(b"Only the owner can update a link");
     }
-    let index = self.get_index(id);
+    let index = self.get_item_index(id);
 
-    let item = Item::new(id, uri, title, description, image_uri);
+    let item = Item::new(
+      id,
+      uri,
+      title,
+      description,
+      image_uri,
+      self.links[index].order(),
+    );
 
     // Update item
     self.links[index] = item;
@@ -171,17 +181,44 @@ impl Link3 {
       panic!("Only the owner can delete a link");
     }
 
-    let index = self.get_index(id);
+    let item_index = self.get_item_index(id);
+    let old_order = self.links[item_index].order();
 
     // Remove item
-    self.links.remove(index);
+    self.links.remove(item_index);
+
+    // Update order of other items
+    for i in 0..self.links.len() {
+      if self.links[i].order() > old_order {
+        let item_order = self.links[i].order();
+        self.links[i].set_order(item_order - 1);
+      }
+    }
+  }
+
+  pub fn reorder_links(&mut self, id_list: Vec<u64>) {
+    if id_list.len() == 0 {
+      panic!("Id List can't be empty.");
+    }
+
+    if id_list.len() != self.links.len() {
+      panic!("Id List length must match the number of links.");
+    }
+
+    if env::signer_account_id() != self.owner_account_id {
+      panic!("Only the owner can reorder links");
+    }
+
+    id_list.iter().enumerate().for_each(|(index, id)| {
+      let item_index = self.get_item_index(*id);
+      self.links[item_index].set_order(index as u64);
+    });
   }
 
   /*******************
    * PRIVATE METHODS *
    *******************/
-
-  fn get_index(&mut self, id: u64) -> usize {
+  fn get_item_index(&mut self, id: u64) -> usize {
     self
       .links
       .iter()
@@ -724,7 +761,7 @@ mod tests {
 
     let id = 1;
     // When
-    contract.get_index(id);
+    contract.get_item_index(id);
     // Then
     // - Should panic
   }
@@ -745,7 +782,7 @@ mod tests {
 
     // When
     let id = 1;
-    let index = contract.get_index(id);
+    let index = contract.get_item_index(id);
     // Then
     assert_eq!(index, 0, "Should've returned the index of the item");
   }
@@ -970,6 +1007,135 @@ mod tests {
       contract.image_uri,
       Some("QmUtLVS6EiS93sAFPpPXX8hEM4Gw1T3FTr7YWb2hMM7uhz".to_string()),
       "Should've updated the image cid"
+    );
+  }
+
+  #[test]
+  #[should_panic(expected = "Id List can't be empty.")]
+  fn reorder_links_empty_list() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    // When
+    contract.reorder_links(vec![]);
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Id List length must match the number of links.")]
+  fn reorder_links_less_then_list() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    for _i in 0..3 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    // When
+    contract.reorder_links(vec![1]);
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  #[should_panic(expected = "Id List length must match the number of links.")]
+  fn reorder_links_more_then_list() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(true));
+
+    // When
+    contract.reorder_links(vec![1]);
+    // Then
+    // - Should panic
+  }
+
+  #[test]
+  fn reorder_links_with_full_list() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    for _i in 0..3 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    let new_orders = vec![2, 1, 3];
+
+    // When
+    contract.reorder_links(new_orders);
+    // Then
+    assert_eq!(
+      contract.links[0].order(),
+      1,
+      "Should've updated the first link order"
+    );
+    assert_eq!(
+      contract.links[1].order(),
+      0,
+      "Should've updated the second link order"
+    );
+    assert_eq!(
+      contract.links[2].order(),
+      2,
+      "Should've updated the third link order"
+    );
+  }
+
+  #[test]
+  fn reorder_links_after_delete() {
+    // Given
+    let context = get_context(vec![], false, Some(1));
+    testing_env!(context);
+    let mut contract = generate_contract(Some(false));
+
+    for _i in 0..3 {
+      contract.create_link(
+        "some_uri".to_string(),
+        "some_title".to_string(),
+        "some_description".to_string(),
+        Some("image".to_string()),
+      );
+    }
+
+    let new_orders = vec![3, 2, 1];
+
+    // index - id - order -> new order
+    // 0  -  1 - 2 -> 1
+    // 1  -  2 - 1 -> 0
+    // 2  -  3 - 0 -> deleted
+
+    // When
+    contract.reorder_links(new_orders);
+    contract.delete_link(3);
+
+    // Then
+    assert_eq!(
+      contract.links[0].order(),
+      1,
+      "Should've updated the first link order"
+    );
+    assert_eq!(
+      contract.links[1].order(),
+      0,
+      "Should've updated the second link order"
     );
   }
 }

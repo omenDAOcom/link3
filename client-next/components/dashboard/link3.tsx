@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import { Link } from "../../near/types";
 import { useNear } from "../../context/near";
+import { ReactSortable } from "react-sortablejs";
 import { useToasts } from "react-toast-notifications";
 // Components
 import Link3Item from "./link3_item";
@@ -11,21 +12,29 @@ interface Props {
 }
 
 const Link3 = ({ links }: Props) => {
-  const { deleteLink } = useNear();
+  const { deleteLink, reorderLinks } = useNear();
   const { addToast } = useToasts();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
-  const [link, setLink] = useState<Link | null>(null);
+  const [localLinks, setLocalLinks] = useState<Link[]>(
+    links.sort((a, b) => a.order - b.order)
+  );
+  const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+
+  const updateLocalLinks = useEffect(() => {
+    setLocalLinks(links.sort((a, b) => a.order - b.order));
+  }, [links]);
 
   const openModal = (link: Link) => {
     setIsOpen(true);
-    setLink(link);
+    setSelectedLink(link);
   };
 
   const closeModal = () => {
     setIsOpen(false);
-    setLink(null);
+    setSelectedLink(null);
   };
 
   const confirmDelete = async (link: Link) => {
@@ -40,24 +49,70 @@ const Link3 = ({ links }: Props) => {
         await deleteLink(id);
         addToast("Link deleted", { appearance: "success" });
       }
-      
+    }
+  };
+
+  const reorder = async () => {
+    try {
+      setIsPending(true);
+
+      await reorderLinks(localLinks.map((link) => link.id));
+
+      addToast("Links new order saved", { appearance: "success" });
+
+      setIsPending(false);
+    } catch (error) {
+      addToast("Error saving new order", { appearance: "error" });
+      // reset local links to original order
+      updateLocalLinks;
+      setIsPending(false);
     }
   };
 
   return (
     <>
-      <div className="space-y-4 w-full">
-        {links.map((link: Link) => (
-          <Link3Item
-            key={link.id}
-            link={link}
-            onEdit={openModal}
-            onDelete={confirmDelete}
-          />
-        ))}
+      <div className="w-full text-left self-start">
+        <button
+          className={`text-xs font-medium tracking-wide hover:text-primary clickable
+        ${isPending ? "text-primary animate-pulse" : ""}
+        `}
+          onClick={reorder}
+        >
+          save order
+        </button>
       </div>
-      {isOpen && link && (
-        <ModalEditLink isOpen={isOpen} onClose={closeModal} link={link} />
+      <div
+        className={`space-y-4 w-full ${
+          isPending
+            ? "opacity-10 pointer-events-none cursor-not-allowed"
+            : "opacity-100 pointer-events-auto"
+        }`}
+      >
+        <ReactSortable
+          list={localLinks}
+          setList={(newSelection) => setLocalLinks(newSelection)}
+          animation={200}
+          delay={2}
+          className="space-y-4"
+          // class to be ignored by the dragger
+          filter=".not-trigger-drag"
+        >
+          {localLinks.map((link: Link) => (
+            <Link3Item
+              key={link.id}
+              link={link}
+              onEdit={openModal}
+              onDelete={confirmDelete}
+            />
+          ))}
+        </ReactSortable>
+      </div>
+      {isOpen && selectedLink && (
+        <ModalEditLink
+          isOpen={isOpen}
+          onClose={closeModal}
+          link={selectedLink}
+        />
       )}
     </>
   );
